@@ -22,3 +22,7 @@ npm install
 cd ../frontend
 npm install
 ```
+## 🛠 Технологии
+- **Бэкенд:** Express (Node.js)
+- **Фронтенд:** Next.js с Tailwind CSS  
+- **База данных:** SQLite
