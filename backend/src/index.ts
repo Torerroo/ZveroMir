@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import { sqliteConnection } from "./database/client";
-import { initDatabase } from "./database/init";
+import { connectDB, runMigrations, seedData } from "./db";
 
 dotenv.config({
   debug: false,
@@ -14,12 +13,13 @@ const PORT = process.env.PORT;
 
 const start = async () => {
   try {
-    const connected = await sqliteConnection();
+    const connected = await connectDB();
     if (!connected) {
       throw new Error("Не удалось подключиться к БД");
     }
 
-    await initDatabase();
+    await runMigrations();
+    await seedData();
 
     app.listen(PORT, () => {
       console.log(`✅ Сервер запущен: http://localhost:${PORT}`);
