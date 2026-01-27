@@ -11,7 +11,7 @@
 ### Установка и запуск
 ```
 # Клонировать репозиторий
-git clone https://github.com/Tozerroo/ZveroMir
+git clone https://github.com/Torerroo/ZveroMir
 cd ZveroMir
 
 # Установить зависимости бэкенда
