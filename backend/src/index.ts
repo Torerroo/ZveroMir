@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { connectDB, runMigrations, seedData } from "./db";
 import apiRouter from "./routes";
+import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config({
   debug: false,
@@ -15,6 +16,8 @@ const PORT = process.env.PORT;
 app.use(express.json());
 
 app.use("/api", apiRouter);
+
+app.use(errorHandler);
 
 const start = async () => {
   try {
