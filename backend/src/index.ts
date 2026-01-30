@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { connectDB, runMigrations, seedData } from "./db";
 import apiRouter from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
+import { authMiddleware } from "./middleware/auth";
 
 dotenv.config({
   debug: false,
@@ -14,6 +15,8 @@ const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
+
+// app.use(authMiddleware);
 
 app.use("/api", apiRouter);
 
