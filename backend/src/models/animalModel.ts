@@ -5,9 +5,10 @@ class AnimalModel {
   findAll(filters?: {
     categoryId?: number | undefined;
     speciesId?: number | undefined;
+    q?: string | undefined;
   }): AnimalWithRelations[] {
     const conditions: string[] = [];
-    const params: Record<string, number> = {};
+    const params: Record<string, number | string> = {};
 
     if (filters?.categoryId !== undefined) {
       conditions.push("a.category_id = @categoryId");
@@ -17,6 +18,12 @@ class AnimalModel {
     if (filters?.speciesId !== undefined) {
       conditions.push("a.species_id = @speciesId");
       params.speciesId = filters.speciesId;
+    }
+
+    if (filters?.q !== undefined && filters.q.trim() !== "") {
+      const searchTerm = `%${filters.q.trim()}%`;
+      conditions.push("(a.name LIKE @searchTerm OR a.breed LIKE @searchTerm)");
+      params.searchTerm = searchTerm;
     }
 
     const whereClause =
