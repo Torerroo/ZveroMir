@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { connectDB, runMigrations, seedData } from "./db";
 import apiRouter from "./routes";
@@ -15,6 +16,7 @@ const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
+app.use(cookieParser());
 
 // app.use(authMiddleware);
 
