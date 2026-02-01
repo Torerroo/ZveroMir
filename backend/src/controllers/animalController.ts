@@ -1,17 +1,34 @@
 import { Request, Response, NextFunction } from "express";
-import { Animal, AnimalWithRelations } from "../types/animalType";
+import {
+  Animal,
+  AnimalWithRelations,
+  AnimalsResponse,
+} from "../types/animalType";
 import { AppError } from "../middleware/errorHandler";
 import { animalModel } from "../models/animalModel";
+import { animalQuerySchema } from "../validators/animalQuery.schema";
 
 class AnimalController {
   getAnimals = async (
     req: Request,
-    res: Response<AnimalWithRelations[] | Animal[]>,
+    res: Response<AnimalsResponse>,
     next: NextFunction
   ) => {
     try {
-      const animals = animalModel.findAll();
-      res.json(animals);
+      const parsedQuery = animalQuerySchema.safeParse(req.query);
+
+      if (!parsedQuery.success) {
+        const err: AppError = new Error("Некорректные query параметры");
+        err.statusCode = 400;
+        err.code = "INVALID_QUERY_PARAMS";
+        err.details = parsedQuery.error.format();
+        return next(err);
+      }
+
+      const animals = animalModel.findAll(parsedQuery.data);
+      const total = animals.length;
+
+      res.json({ animals, total });
     } catch (error) {
       next(error);
     }

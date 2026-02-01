@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 export interface AppError extends Error {
   statusCode?: number;
   code?: string;
+  details?: unknown;
 }
 
 export function errorHandler(
@@ -24,6 +25,7 @@ export function errorHandler(
     error: {
       message: status === 500 ? "Внутренняя ошибка сервера" : err.message,
       code,
+      ...(err.details ? { details: err.details } : {}),
     },
   });
 }

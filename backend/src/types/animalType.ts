@@ -50,3 +50,8 @@ export interface AnimalRow {
   category_name: string;
   species_name: string;
 }
+
+export interface AnimalsResponse {
+  animals: AnimalWithRelations[];
+  total: number;
+}

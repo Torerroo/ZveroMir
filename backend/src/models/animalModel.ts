@@ -2,7 +2,26 @@ import { db } from "../db";
 import { AnimalRow, AnimalWithRelations } from "../types/animalType";
 
 class AnimalModel {
-  findAll(): AnimalWithRelations[] {
+  findAll(filters?: {
+    categoryId?: number | undefined;
+    speciesId?: number | undefined;
+  }): AnimalWithRelations[] {
+    const conditions: string[] = [];
+    const params: Record<string, number> = {};
+
+    if (filters?.categoryId !== undefined) {
+      conditions.push("a.category_id = @categoryId");
+      params.categoryId = filters.categoryId;
+    }
+
+    if (filters?.speciesId !== undefined) {
+      conditions.push("a.species_id = @speciesId");
+      params.speciesId = filters.speciesId;
+    }
+
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
     const query = `
       SELECT
         a.id,
@@ -20,10 +39,11 @@ class AnimalModel {
       FROM animals a
       JOIN categories c ON a.category_id = c.id
       JOIN species s ON a.species_id = s.id
+      ${whereClause}
       ORDER BY a.created_at DESC
     `;
 
-    const rows = db.prepare(query).all() as AnimalRow[];
+    const rows = db.prepare(query).all(params) as AnimalRow[];
 
     return rows.map(
       (row): AnimalWithRelations => ({
