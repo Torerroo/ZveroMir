@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Animal, AnimalWithRelations } from "../types/animalType";
 import { AppError } from "../middleware/errorHandler";
+import { animalModel } from "../models/animalModel";
 
 class AnimalController {
   getAnimals = async (
@@ -9,9 +10,8 @@ class AnimalController {
     next: NextFunction
   ) => {
     try {
-      // TODO: запрос в БД за списком животных
-      // const animals = await animalModel.findAll();
-      res.json([]);
+      const animals = animalModel.findAll();
+      res.json(animals);
     } catch (error) {
       next(error);
     }

@@ -26,12 +26,27 @@ export interface Animal {
   status: AnimalStatus;
   description?: string | null;
   imageUrl?: string | null;
-  categoryId: number;
-  speciesId: number;
+  categoryId?: number;
+  speciesId?: number;
   createdAt: string;
 }
 
 export interface AnimalWithRelations extends Animal {
-  category: Category;
-  species: Species;
+  category: string;
+  species: string;
+}
+
+export interface AnimalRow {
+  id: number;
+  name: string;
+  breed: string | null;
+  age: number | null;
+  gender: string;
+  size: string;
+  status: string;
+  description: string | null;
+  imageUrl: string | null;
+  created_at: string;
+  category_name: string;
+  species_name: string;
 }
