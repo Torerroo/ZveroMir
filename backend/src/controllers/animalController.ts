@@ -4,9 +4,9 @@ import {
   AnimalWithRelations,
   AnimalsResponse,
 } from "../types/animalType";
-import { AppError } from "../middleware/errorHandler";
-import { animalModel } from "../models/animalModel";
 import { animalQuerySchema } from "../validators/animalQuery.schema";
+import { animalRepository } from "../repositories/animalRepository";
+import { validationError } from "../utils/errors";
 
 class AnimalController {
   getAnimals = async (
@@ -18,14 +18,10 @@ class AnimalController {
       const parsedQuery = animalQuerySchema.safeParse(req.query);
 
       if (!parsedQuery.success) {
-        const err: AppError = new Error("Некорректные query параметры");
-        err.statusCode = 400;
-        err.code = "INVALID_QUERY_PARAMS";
-        err.details = parsedQuery.error.format();
-        return next(err);
+        return next(validationError(parsedQuery.error));
       }
 
-      const animals = animalModel.findAll(parsedQuery.data);
+      const animals = animalRepository.findAll(parsedQuery.data);
       const total = animals.length;
 
       res.json({ animals, total });
@@ -42,7 +38,7 @@ class AnimalController {
     try {
       // TODO: валидация/парсинг id, запрос в БД за одним животным
       // const id = Number(req.params.id);
-      // const animal = await animalModel.findById(id);
+      // const animal = await animalRepository.findById(id);
       // if (!animal) {
       //   const err: AppError = new Error("Животное не найдено");
       //   err.statusCode = 404;
@@ -62,7 +58,7 @@ class AnimalController {
   ) => {
     try {
       // TODO: валидация тела запроса и создание записи в БД
-      // const created = await animalModel.create(req.body);
+      // const created = await animalRepository.create(req.body);
       res.json({ message: "Not implemented" });
     } catch (error) {
       next(error);
@@ -77,7 +73,7 @@ class AnimalController {
     try {
       // TODO: валидация id и тела запроса, обновление записи в БД
       // const id = Number(req.params.id);
-      // const updated = await animalModel.update(id, req.body);
+      // const updated = await animalRepository.update(id, req.body);
       // if (!updated) {
       //   const err: AppError = new Error("Животное не найдено");
       //   err.statusCode = 404;
@@ -98,7 +94,7 @@ class AnimalController {
     try {
       // TODO: валидация id и удаление записи из БД
       // const id = Number(req.params.id);
-      // const deleted = await animalModel.delete(id);
+      // const deleted = await animalRepository.delete(id);
       // if (!deleted) {
       //   const err: AppError = new Error("Животное не найдено");
       //   err.statusCode = 404;

@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { AnimalRow, AnimalWithRelations } from "../types/animalType";
 
-class AnimalModel {
+class AnimalRepository {
   findAll(filters?: {
     categoryId?: number | undefined;
     speciesId?: number | undefined;
@@ -71,4 +71,4 @@ class AnimalModel {
   }
 }
 
-export const animalModel = new AnimalModel();
+export const animalRepository = new AnimalRepository();

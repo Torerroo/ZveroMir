@@ -12,7 +12,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  console.error("Необработанная ошибка:", err);
+  console.error("error:", err);
 
   const status =
     err.statusCode && err.statusCode >= 400 && err.statusCode < 600
