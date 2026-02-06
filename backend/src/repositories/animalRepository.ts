@@ -1,6 +1,23 @@
 import { db } from "../db";
 import { AnimalRow, AnimalWithRelations } from "../types/animalType";
 
+function mapRowToAnimal(row: AnimalRow): AnimalWithRelations {
+  return {
+    id: row.id,
+    name: row.name,
+    breed: row.breed,
+    age: row.age,
+    gender: row.gender as "Мальчик" | "Девочка" | "Неизвестно",
+    size: row.size as "Маленький" | "Средний" | "Большой",
+    status: row.status as "Доступно" | "Зарезервировано" | "Пристроено",
+    description: row.description,
+    imageUrl: row.imageUrl,
+    createdAt: row.created_at,
+    category: row.category_name,
+    species: row.species_name,
+  };
+}
+
 class AnimalRepository {
   findAll(filters?: {
     categoryId?: number | undefined;
@@ -21,9 +38,9 @@ class AnimalRepository {
     }
 
     if (filters?.q !== undefined && filters.q.trim() !== "") {
-      const searchTerm = `%${filters.q.trim().toLowerCase()}%`;
+      const searchTerm = `%${filters.q.trim()}%`;
       conditions.push(
-        "(LOWER(a.name) LIKE @searchTerm OR LOWER(a.breed) LIKE @searchTerm)"
+        "(a.name COLLATE NOCASE LIKE @searchTerm OR a.breed COLLATE NOCASE LIKE @searchTerm)"
       );
       params.searchTerm = searchTerm;
     }
@@ -54,22 +71,37 @@ class AnimalRepository {
 
     const rows = db.prepare(query).all(params) as AnimalRow[];
 
-    return rows.map(
-      (row): AnimalWithRelations => ({
-        id: row.id,
-        name: row.name,
-        breed: row.breed,
-        age: row.age,
-        gender: row.gender as "Мальчик" | "Девочка" | "Неизвестно",
-        size: row.size as "Маленький" | "Средний" | "Большой",
-        status: row.status as "Доступно" | "Зарезервировано" | "Пристроено",
-        description: row.description,
-        imageUrl: row.imageUrl,
-        createdAt: row.created_at,
-        category: row.category_name,
-        species: row.species_name,
-      })
-    );
+    return rows.map(mapRowToAnimal);
+  }
+
+  findById(id: number): AnimalWithRelations | null {
+    const query = `
+      SELECT
+        a.id,
+        a.name,
+        a.breed,
+        a.age,
+        a.gender,
+        a.size,
+        a.status,
+        a.description,
+        a.image_url as imageUrl,
+        a.created_at as created_at,
+        c.name as category_name,
+        s.name as species_name
+      FROM animals a
+      JOIN categories c ON a.category_id = c.id
+      JOIN species s ON a.species_id = s.id
+      WHERE a.id = @id
+    `;
+
+    const row = db.prepare(query).get({ id }) as AnimalRow | undefined;
+
+    if (!row) {
+      return null;
+    }
+
+    return mapRowToAnimal(row);
   }
 }
 

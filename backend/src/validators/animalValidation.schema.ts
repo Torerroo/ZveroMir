@@ -23,3 +23,9 @@ export const animalQuerySchema = z.preprocess((raw) => {
 }, baseAnimalQuerySchema);
 
 export type AnimalQuery = z.infer<typeof baseAnimalQuerySchema>;
+
+export const animalIdParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+export type AnimalIdParams = z.infer<typeof animalIdParamSchema>;

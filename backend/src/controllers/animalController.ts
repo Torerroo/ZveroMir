@@ -4,9 +4,12 @@ import {
   AnimalWithRelations,
   AnimalsResponse,
 } from "../types/animalType";
-import { animalQuerySchema } from "../validators/animalQuery.schema";
+import {
+  animalIdParamSchema,
+  animalQuerySchema,
+} from "../validators/animalValidation.schema";
 import { animalRepository } from "../repositories/animalRepository";
-import { validationError } from "../utils/errors";
+import { notFoundError, validationError } from "../utils/errors";
 
 class AnimalController {
   getAnimals = async (
@@ -32,20 +35,23 @@ class AnimalController {
 
   getAnimalById = async (
     req: Request<{ id: string }>,
-    res: Response<AnimalWithRelations | Animal | { message: string }>,
+    res: Response<AnimalWithRelations>,
     next: NextFunction
   ) => {
     try {
-      // TODO: валидация/парсинг id, запрос в БД за одним животным
-      // const id = Number(req.params.id);
-      // const animal = await animalRepository.findById(id);
-      // if (!animal) {
-      //   const err: AppError = new Error("Животное не найдено");
-      //   err.statusCode = 404;
-      //   err.code = "ANIMAL_NOT_FOUND";
-      //   return next(err);
-      // }
-      res.json({ message: "Not implemented" });
+      const parsedParams = animalIdParamSchema.safeParse(req.params);
+
+      if (!parsedParams.success) {
+        return next(validationError(parsedParams.error));
+      }
+
+      const animal = animalRepository.findById(parsedParams.data.id);
+
+      if (!animal) {
+        return next(notFoundError("Животное"));
+      }
+
+      res.json(animal);
     } catch (error) {
       next(error);
     }
