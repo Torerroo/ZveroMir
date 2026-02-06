@@ -21,8 +21,10 @@ class AnimalRepository {
     }
 
     if (filters?.q !== undefined && filters.q.trim() !== "") {
-      const searchTerm = `%${filters.q.trim()}%`;
-      conditions.push("(a.name LIKE @searchTerm OR a.breed LIKE @searchTerm)");
+      const searchTerm = `%${filters.q.trim().toLowerCase()}%`;
+      conditions.push(
+        "(LOWER(a.name) LIKE @searchTerm OR LOWER(a.breed) LIKE @searchTerm)"
+      );
       params.searchTerm = searchTerm;
     }
 
