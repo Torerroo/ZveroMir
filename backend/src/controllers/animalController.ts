@@ -7,9 +7,10 @@ import {
 import {
   animalIdParamSchema,
   animalQuerySchema,
+  animalCreateSchema,
 } from "../validators/animalValidation.schema";
-import { animalRepository } from "../repositories/animalRepository";
-import { notFoundError, validationError } from "../utils/errors";
+import { validationError } from "../utils/errors";
+import { animalService } from "../services/animalService";
 
 class AnimalController {
   getAnimals = async (
@@ -24,7 +25,7 @@ class AnimalController {
         return next(validationError(parsedQuery.error));
       }
 
-      const animals = animalRepository.findAll(parsedQuery.data);
+      const animals = await animalService.getAll(parsedQuery.data);
       const total = animals.length;
 
       res.json({ animals, total });
@@ -45,11 +46,7 @@ class AnimalController {
         return next(validationError(parsedParams.error));
       }
 
-      const animal = animalRepository.findById(parsedParams.data.id);
-
-      if (!animal) {
-        return next(notFoundError("Животное"));
-      }
+      const animal = await animalService.getById(parsedParams.data.id);
 
       res.json(animal);
     } catch (error) {
@@ -59,13 +56,19 @@ class AnimalController {
 
   createAnimal = async (
     req: Request,
-    res: Response<Animal | { message: string }>,
+    res: Response<AnimalWithRelations>,
     next: NextFunction
   ) => {
     try {
-      // TODO: валидация тела запроса и создание записи в БД
-      // const created = await animalRepository.create(req.body);
-      res.json({ message: "Not implemented" });
+      const parsedData = animalCreateSchema.safeParse(req.body);
+
+      if (!parsedData.success) {
+        return next(validationError(parsedData.error));
+      }
+
+      const createdAnimal = await animalService.create(parsedData.data);
+
+      res.status(201).json(createdAnimal);
     } catch (error) {
       next(error);
     }
