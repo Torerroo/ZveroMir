@@ -29,6 +29,7 @@ export interface Animal {
   categoryId?: number;
   speciesId?: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface AnimalWithRelations extends Animal {
@@ -47,8 +48,10 @@ export interface AnimalRow {
   description: string | null;
   imageUrl: string | null;
   created_at: string;
+  updated_at: string;
   category_name: string;
   species_name: string;
+  deleted_at: string | null;
 }
 
 export interface AnimalsResponse {

@@ -13,6 +13,7 @@ function mapRowToAnimal(row: AnimalRow): AnimalWithRelations {
     description: row.description,
     imageUrl: row.imageUrl,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
     category: row.category_name,
     species: row.species_name,
   };
@@ -60,12 +61,14 @@ class AnimalRepository {
         a.description,
         a.image_url as imageUrl,
         a.created_at as created_at,
+        a.updated_at as updated_at,
+        a.deleted_at as deleted_at,
         c.name as category_name,
         s.name as species_name
       FROM animals a
       JOIN categories c ON a.category_id = c.id
       JOIN species s ON a.species_id = s.id
-      ${whereClause}
+      WHERE a.deleted_at IS NULL ${whereClause ? `AND ${whereClause}` : ""}
       ORDER BY a.created_at DESC
     `;
 
@@ -87,12 +90,14 @@ class AnimalRepository {
         a.description,
         a.image_url as imageUrl,
         a.created_at as created_at,
+        a.updated_at as updated_at,
+        a.deleted_at as deleted_at,
         c.name as category_name,
         s.name as species_name
       FROM animals a
       JOIN categories c ON a.category_id = c.id
       JOIN species s ON a.species_id = s.id
-      WHERE a.id = @id
+      WHERE a.id = @id AND a.deleted_at IS NULL
     `;
 
     const row = db.prepare(query).get({ id }) as AnimalRow | undefined;
@@ -118,35 +123,42 @@ class AnimalRepository {
     createdAt: string;
   }): number {
     const query = `
-      INSERT INTO animals (name, breed, age, gender, size, status, description, image_url, category_id, species_id, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO animals (name, breed, age, gender, size, status, description, image_url, category_id, species_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     `;
 
-    const result = db.prepare(query).run(
-      data.name,
-      data.breed,
-      data.age || null,
-      data.gender,
-      data.size,
-      data.status,
-      data.description || null,
-      data.imageUrl || null,
-      data.categoryId,
-      data.speciesId,
-      data.createdAt
-    );
+    const result = db
+      .prepare(query)
+      .run(
+        data.name,
+        data.breed,
+        data.age || null,
+        data.gender,
+        data.size,
+        data.status,
+        data.description || null,
+        data.imageUrl || null,
+        data.categoryId,
+        data.speciesId,
+        data.createdAt
+      );
 
     return result.lastInsertRowid as number;
   }
 
   findCategoryByName(name: string) {
     const query = "SELECT id, name FROM categories WHERE name = ? LIMIT 1";
-    return db.prepare(query).get(name) as { id: number; name: string } | undefined;
+    return db.prepare(query).get(name) as
+      | { id: number; name: string }
+      | undefined;
   }
 
   findSpeciesByNameAndCategory(name: string, categoryId: number) {
-    const query = "SELECT id, name, category_id FROM species WHERE name = ? AND category_id = ? LIMIT 1";
-    return db.prepare(query).get(name, categoryId) as { id: number; name: string; category_id: number } | undefined;
+    const query =
+      "SELECT id, name, category_id FROM species WHERE name = ? AND category_id = ? LIMIT 1";
+    return db.prepare(query).get(name, categoryId) as
+      | { id: number; name: string; category_id: number }
+      | undefined;
   }
 
   update(
@@ -176,8 +188,9 @@ class AnimalRepository {
         description = ?,
         image_url = ?,
         category_id = ?,
-        species_id = ?
-      WHERE id = ?
+        species_id = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND deleted_at IS NULL
     `;
 
     const result = db
@@ -200,7 +213,8 @@ class AnimalRepository {
   }
 
   delete(id: number): boolean {
-    const query = "DELETE FROM animals WHERE id = ?";
+    const query =
+      "UPDATE animals SET deleted_at = CURRENT_TIMESTAMP WHERE id = ? AND deleted_at IS NULL";
     const result = db.prepare(query).run(id);
     return result.changes > 0;
   }
