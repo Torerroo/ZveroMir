@@ -148,6 +148,62 @@ class AnimalRepository {
     const query = "SELECT id, name, category_id FROM species WHERE name = ? AND category_id = ? LIMIT 1";
     return db.prepare(query).get(name, categoryId) as { id: number; name: string; category_id: number } | undefined;
   }
+
+  update(
+    id: number,
+    data: {
+      name: string;
+      breed: string;
+      age: number | null;
+      gender: "Мальчик" | "Девочка" | "Неизвестно";
+      size: "Маленький" | "Средний" | "Большой";
+      status: "Доступно" | "Зарезервировано" | "Пристроено";
+      description: string | null;
+      imageUrl: string | null;
+      categoryId: number;
+      speciesId: number;
+    }
+  ): boolean {
+    const query = `
+      UPDATE animals
+      SET
+        name = ?,
+        breed = ?,
+        age = ?,
+        gender = ?,
+        size = ?,
+        status = ?,
+        description = ?,
+        image_url = ?,
+        category_id = ?,
+        species_id = ?
+      WHERE id = ?
+    `;
+
+    const result = db
+      .prepare(query)
+      .run(
+        data.name,
+        data.breed,
+        data.age || null,
+        data.gender,
+        data.size,
+        data.status,
+        data.description || null,
+        data.imageUrl || null,
+        data.categoryId,
+        data.speciesId,
+        id
+      );
+
+    return result.changes > 0;
+  }
+
+  delete(id: number): boolean {
+    const query = "DELETE FROM animals WHERE id = ?";
+    const result = db.prepare(query).run(id);
+    return result.changes > 0;
+  }
 }
 
 export const animalRepository = new AnimalRepository();

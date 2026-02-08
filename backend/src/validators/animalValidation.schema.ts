@@ -30,7 +30,7 @@ export const animalIdParamSchema = z.object({
 
 export type AnimalIdParams = z.infer<typeof animalIdParamSchema>;
 
-export const animalCreateSchema = z.object({
+const baseAnimalFields = {
   name: z.string().min(1, "Имя обязательно").max(100, "Имя слишком длинное"),
   breed: z
     .string()
@@ -56,6 +56,12 @@ export const animalCreateSchema = z.object({
     .url("Неверный URL изображения")
     .optional()
     .or(z.literal("")),
-});
+};
+
+export const animalCreateSchema = z.object(baseAnimalFields);
 
 export type AnimalCreate = z.infer<typeof animalCreateSchema>;
+
+export const animalUpdateSchema = animalCreateSchema;
+
+export type AnimalUpdate = z.infer<typeof animalUpdateSchema>;

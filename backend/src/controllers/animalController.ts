@@ -8,6 +8,7 @@ import {
   animalIdParamSchema,
   animalQuerySchema,
   animalCreateSchema,
+  animalUpdateSchema,
 } from "../validators/animalValidation.schema";
 import { validationError } from "../utils/errors";
 import { animalService } from "../services/animalService";
@@ -76,20 +77,28 @@ class AnimalController {
 
   updateAnimal = async (
     req: Request<{ id: string }>,
-    res: Response<Animal | { message: string }>,
+    res: Response<AnimalWithRelations>,
     next: NextFunction
   ) => {
     try {
-      // TODO: валидация id и тела запроса, обновление записи в БД
-      // const id = Number(req.params.id);
-      // const updated = await animalRepository.update(id, req.body);
-      // if (!updated) {
-      //   const err: AppError = new Error("Животное не найдено");
-      //   err.statusCode = 404;
-      //   err.code = "ANIMAL_NOT_FOUND";
-      //   return next(err);
-      // }
-      res.json({ message: "Not implemented" });
+      const parsedParams = animalIdParamSchema.safeParse(req.params);
+
+      if (!parsedParams.success) {
+        return next(validationError(parsedParams.error));
+      }
+
+      const parsedData = animalUpdateSchema.safeParse(req.body);
+
+      if (!parsedData.success) {
+        return next(validationError(parsedData.error));
+      }
+
+      const updatedAnimal = await animalService.update(
+        parsedParams.data.id,
+        parsedData.data
+      );
+
+      res.json(updatedAnimal);
     } catch (error) {
       next(error);
     }
@@ -97,20 +106,22 @@ class AnimalController {
 
   deleteAnimal = async (
     req: Request<{ id: string }>,
-    res: Response<{ success: boolean; message?: string }>,
+    res: Response<{ success: boolean; message: string }>,
     next: NextFunction
   ) => {
     try {
-      // TODO: валидация id и удаление записи из БД
-      // const id = Number(req.params.id);
-      // const deleted = await animalRepository.delete(id);
-      // if (!deleted) {
-      //   const err: AppError = new Error("Животное не найдено");
-      //   err.statusCode = 404;
-      //   err.code = "ANIMAL_NOT_FOUND";
-      //   return next(err);
-      // }
-      res.json({ success: false, message: "Not implemented" });
+      const parsedParams = animalIdParamSchema.safeParse(req.params);
+
+      if (!parsedParams.success) {
+        return next(validationError(parsedParams.error));
+      }
+
+      await animalService.delete(parsedParams.data.id);
+
+      res.json({
+        success: true,
+        message: "Животное успешно удалено"
+      });
     } catch (error) {
       next(error);
     }
