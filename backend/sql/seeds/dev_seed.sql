@@ -39,6 +39,5 @@ ON CONFLICT DO NOTHING;
 
 -- Тестовые пользователи
 INSERT INTO users (email, password_hash, full_name) VALUES
-('user@example.com', '$2b$10$hashedpassword1', 'Иван Петров'),
-('admin@example.com', '$2b$10$hashedpassword2', 'Администратор Приюта')
+('admin@mail.ru','$2b$10$t1BOiVTpUwoqZnPDN6cJOOUrYql5ohvR4hvS4ogP/71zvY6b9n4wi', 'Админ')
 ON CONFLICT(email) DO NOTHING;

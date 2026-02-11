@@ -28,3 +28,13 @@ export function forbiddenError(reason: string): AppError {
     code: "FORBIDDEN",
   };
 }
+
+export function unauthorizedError(message = "Необходима аутентификация"): AppError {
+  return {
+    name: "UnauthorizedError",
+    message,
+    statusCode: 401,
+    code: "UNAUTHORIZED",
+  };
+}
+

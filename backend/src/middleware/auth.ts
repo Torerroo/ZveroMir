@@ -4,14 +4,24 @@ import { AppError } from "./errorHandler";
 
 export type AuthRequest = Request & { userId?: number };
 
-const COOKIE_NAME = "session";
+export const COOKIE_NAME = "session";
+
+const PUBLIC_PATHS = ["/api/auth/login", "/api/auth/register"];
 
 export const authMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  if (req.path.startsWith("/api/auth")) {
+  if (req.method === "OPTIONS") {
+    return next();
+  }
+
+  if (PUBLIC_PATHS.includes(req.path)) {
+    return next();
+  }
+
+  if (req.method === "GET" && req.path.startsWith("/api/animals")) {
     return next();
   }
 
