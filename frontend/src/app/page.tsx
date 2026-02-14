@@ -4,12 +4,12 @@ export default function Home() {
   return (
     <div className="h-screen relative">
       <Image
-        src="/Главная2.png"
+        src="/main.png"
         alt="Background"
         fill
-        className="object-cover"
+        className="object-cover object-bottom-left"
         priority
-        quality={85}
+        quality={100}
       />
     </div>
   );
