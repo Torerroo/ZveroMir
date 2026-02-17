@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import type { Animal } from "@/api/animals";
+import type { AnimalWithRelations } from "@/types/animals";
 
 type Props = {
-  animal: Animal;
+  animal: AnimalWithRelations;
 };
 
 export function AnimalCard({ animal }: Props) {
@@ -16,13 +16,13 @@ export function AnimalCard({ animal }: Props) {
     >
       <article className="overflow-hidden rounded-3xl bg-white/65 ring-1 ring-black/5 backdrop-blur transition-all duration-300 will-change-transform hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.16)] shadow-[0_10px_30px_rgba(0,0,0,0.10)]">
         <div className="relative aspect-4/3 w-full overflow-hidden">
-          <Image
-            src={animal.imageUrl}
+          {/* <Image
+            src={animal.imageUrl ?? "/placeholder-animal.jpg"}
             alt={animal.name}
             fill
             className="object-cover transition duration-500 group-hover:scale-[1.04]"
             sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
+          /> */}
 
           <div className="absolute inset-0 bg-linear-to-t from-black/25 to-transparent opacity-90 transition group-hover:opacity-100" />
         </div>

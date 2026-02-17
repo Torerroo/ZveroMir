@@ -1,8 +1,9 @@
-import { getAnimals } from "@/api/animals";
+import { api } from "@/api";
+import type { AnimalWithRelations } from "@/types/animals";
 import { AnimalCard } from "./AnimalCard";
 
 export async function AnimalsSection() {
-  const animals = await getAnimals();
+  const { animals, total } = await api.animals.getAll();
 
   return (
     <section
@@ -26,7 +27,7 @@ export async function AnimalsSection() {
         </h2>
 
         <div className="mt-12 grid gap-8 grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
-          {animals.map((animal) => (
+          {animals.map((animal: AnimalWithRelations) => (
             <AnimalCard key={animal.id} animal={animal} />
           ))}
         </div>
