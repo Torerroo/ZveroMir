@@ -22,7 +22,15 @@ npm install
 cd ../frontend
 npm install
 ```
+
 ## 🛠 Технологии
-- **Бэкенд:** Express (Node.js)
-- **Фронтенд:** Next.js с Tailwind CSS  
-- **База данных:** SQLite
+- **Бэкенд:** Express.js
+- **Фронтенд:** Next.js, Tailwind CSS, Three.js
+- **База данных:** SQLite, PostgreSQL + Prisma
+
+## 🎯 План развития
+- [x] Попрактиковаться с express.js
+- [ ] Вспомнить next.js
+- [ ] Сделать деплой
+- [ ] Поиграться с three.js
+- [ ] Переписать sqlite на PostgreSQL + Prisma
