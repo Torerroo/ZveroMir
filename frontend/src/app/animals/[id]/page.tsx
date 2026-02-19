@@ -3,11 +3,11 @@ import Link from "next/link";
 import { api } from "@/api";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default async function AnimalPage({ params }: Props) {
-  const { id } = params;
+  const { id } = await params;
   const animal = await api.animals.getById(id);
 
   return (
