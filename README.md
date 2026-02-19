@@ -34,3 +34,4 @@ npm install
 - [ ] Сделать деплой
 - [ ] Поиграться с three.js
 - [ ] Переписать sqlite на PostgreSQL + Prisma
+- [ ] Написать тесты: backend (Jest + Supertest), frontend (Jest + React Testing Library)
