@@ -1,9 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {
-  Animal,
-  AnimalWithRelations,
-  AnimalsResponse,
-} from "../types/animalType";
+import { AnimalsResponse } from "../types/animalType";
 import {
   animalIdParamSchema,
   animalQuerySchema,
@@ -26,10 +22,9 @@ class AnimalController {
         return next(validationError(parsedQuery.error));
       }
 
-      const animals = await animalService.getAll(parsedQuery.data);
-      const total = animals.length;
+      const result = await animalService.getAll(parsedQuery.data);
 
-      res.json({ animals, total });
+      res.json(result);
     } catch (error) {
       next(error);
     }
@@ -37,38 +32,25 @@ class AnimalController {
 
   getAnimalById = async (
     req: Request<{ id: string }>,
-    res: Response<AnimalWithRelations>,
+    res: Response,
     next: NextFunction
   ) => {
     try {
       const parsedParams = animalIdParamSchema.safeParse(req.params);
-
-      if (!parsedParams.success) {
+      if (!parsedParams.success)
         return next(validationError(parsedParams.error));
-      }
-
       const animal = await animalService.getById(parsedParams.data.id);
-
       res.json(animal);
     } catch (error) {
       next(error);
     }
   };
 
-  createAnimal = async (
-    req: Request,
-    res: Response<AnimalWithRelations>,
-    next: NextFunction
-  ) => {
+  createAnimal = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsedData = animalCreateSchema.safeParse(req.body);
-
-      if (!parsedData.success) {
-        return next(validationError(parsedData.error));
-      }
-
+      if (!parsedData.success) return next(validationError(parsedData.error));
       const createdAnimal = await animalService.create(parsedData.data);
-
       res.status(201).json(createdAnimal);
     } catch (error) {
       next(error);
@@ -77,27 +59,19 @@ class AnimalController {
 
   updateAnimal = async (
     req: Request<{ id: string }>,
-    res: Response<AnimalWithRelations>,
+    res: Response,
     next: NextFunction
   ) => {
     try {
       const parsedParams = animalIdParamSchema.safeParse(req.params);
-
-      if (!parsedParams.success) {
+      if (!parsedParams.success)
         return next(validationError(parsedParams.error));
-      }
-
       const parsedData = animalUpdateSchema.safeParse(req.body);
-
-      if (!parsedData.success) {
-        return next(validationError(parsedData.error));
-      }
-
+      if (!parsedData.success) return next(validationError(parsedData.error));
       const updatedAnimal = await animalService.update(
         parsedParams.data.id,
         parsedData.data
       );
-
       res.json(updatedAnimal);
     } catch (error) {
       next(error);
@@ -106,22 +80,15 @@ class AnimalController {
 
   deleteAnimal = async (
     req: Request<{ id: string }>,
-    res: Response<{ success: boolean; message: string }>,
+    res: Response,
     next: NextFunction
   ) => {
     try {
       const parsedParams = animalIdParamSchema.safeParse(req.params);
-
-      if (!parsedParams.success) {
+      if (!parsedParams.success)
         return next(validationError(parsedParams.error));
-      }
-
       await animalService.delete(parsedParams.data.id);
-
-      res.json({
-        success: true,
-        message: "Животное успешно удалено"
-      });
+      res.json({ success: true, message: "Животное успешно удалено" });
     } catch (error) {
       next(error);
     }

@@ -47,7 +47,7 @@ class AnimalService {
     return createdAnimal;
   }
 
-  async getAll(filters?: AnimalQuery) {
+  async getAll(filters: AnimalQuery = {}) {
     return animalRepository.findAll(filters);
   }
 

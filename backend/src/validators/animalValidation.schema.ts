@@ -3,7 +3,12 @@ import { z } from "zod";
 const baseAnimalQuerySchema = z.object({
   categoryId: z.coerce.number().int().positive().optional(),
   speciesId: z.coerce.number().int().positive().optional(),
+  speciesName: z.string().optional(),
+  gender: z.enum(["Мальчик", "Девочка", "Неизвестно"]).optional(),
+  size: z.enum(["Маленький", "Средний", "Большой"]).optional(),
   q: z.string().min(1).optional(),
+  limit: z.coerce.number().int().positive().optional(),
+  offset: z.coerce.number().int().nonnegative().optional(),
 });
 
 export const animalQuerySchema = z.preprocess((raw) => {
@@ -59,9 +64,6 @@ const baseAnimalFields = {
 };
 
 export const animalCreateSchema = z.object(baseAnimalFields);
-
 export type AnimalCreate = z.infer<typeof animalCreateSchema>;
-
 export const animalUpdateSchema = animalCreateSchema;
-
 export type AnimalUpdate = z.infer<typeof animalUpdateSchema>;
