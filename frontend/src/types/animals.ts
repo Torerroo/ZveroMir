@@ -30,3 +30,9 @@ export interface AnimalsResponse {
   total: number;
 }
 
+export interface SpeciesResponse {
+  id: number;
+  name: string;
+  categoryId: number;
+  categoryName: string;
+}

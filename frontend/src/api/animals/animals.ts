@@ -2,6 +2,7 @@ import type {
   Animal,
   AnimalWithRelations,
   AnimalsResponse,
+  SpeciesResponse,
 } from "../../types/animals";
 import { http } from "../http";
 
@@ -28,6 +29,8 @@ function toSearchString(params?: QueryParams): string {
 export const animalsApi = {
   getAll: (params?: QueryParams) =>
     http.request<AnimalsResponse>(`/api/animals${toSearchString(params)}`),
+
+  getSpecies: () => http.request<SpeciesResponse[]>("/api/animals/species"),
 
   getById: (id: string) =>
     http.request<AnimalWithRelations>(`/api/animals/${id}`),
