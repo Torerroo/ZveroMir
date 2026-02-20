@@ -51,6 +51,10 @@ class AnimalService {
     return animalRepository.findAll(filters);
   }
 
+  async getSpecies() {
+    return animalRepository.getAllSpecies();
+  }
+
   async getById(id: AnimalIdParams["id"]) {
     const animal = animalRepository.findById(id);
     if (!animal) {

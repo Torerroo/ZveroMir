@@ -30,6 +30,15 @@ class AnimalController {
     }
   };
 
+  getSpecies = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const species = await animalService.getSpecies();
+      res.json(species);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   getAnimalById = async (
     req: Request<{ id: string }>,
     res: Response,

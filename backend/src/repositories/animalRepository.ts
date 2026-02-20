@@ -106,6 +106,20 @@ class AnimalRepository {
     };
   }
 
+  getAllSpecies() {
+    const query = `
+			SELECT s.id, s.name, s.category_id as categoryId, c.name as categoryName 
+			FROM species s
+			JOIN categories c ON s.category_id = c.id
+		`;
+    return db.prepare(query).all() as {
+      id: number;
+      name: string;
+      categoryId: number;
+      categoryName: string;
+    }[];
+  }
+
   // Остальные методы без изменений, но убедись что они есть
   findById(id: number): AnimalWithRelations | null {
     const query = `

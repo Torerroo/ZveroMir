@@ -5,6 +5,8 @@ const router = Router();
 
 router.get("/", animalController.getAnimals);
 
+router.get("/species", animalController.getSpecies);
+
 router.get("/:id", animalController.getAnimalById);
 
 router.post("/", animalController.createAnimal);
