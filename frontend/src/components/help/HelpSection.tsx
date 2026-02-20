@@ -1,30 +1,24 @@
-import { api } from "@/api";
-import type { AnimalWithRelations } from "@/types/animals";
-import { AnimalCard } from "./AnimalCard";
-
-export async function AnimalsSection() {
-  const { animals, total } = await api.animals.getAll();
-
+export async function HelpSection() {
   return (
     <section
       className="min-h-screen w-full"
+      aria-label="Помощь приюту"
       style={{
         backgroundImage: `linear-gradient(to bottom,
-          #fffef9 0%,
-          #fcf9f3 18%,
-          #f8f4ec 35%,
-          #f2ebe0 52%,
-          #ebe3d8 70%,
-          #e5dccf 88%,
-          #e0d6c8 100%
+          #e0d6c8 0%,
+          #e5dccf 12%,
+          #ebe3d8 30%,
+          #f2ebe0 48%,
+          #f8f4ec 65%,
+          #fcf9f3 82%,
+          #fffef9 100%
         )`,
       }}
-      aria-label="Наши питомцы"
     >
-      <div className="mx-auto w-full px-30 pb-18 pt-12">
+      <div className="mx-auto w-full px-30 pb-18 pt-16">
         <div className="relative mb-16">
           <h2 className="text-center text-4xl font-semibold tracking-tight text-amber-900/80 sm:text-5xl">
-            Наши питомцы
+            Помощь приюту
           </h2>
 
           <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 w-48 h-4">
@@ -39,10 +33,8 @@ export async function AnimalsSection() {
           </div>
         </div>
 
-        <div className="mt-12 grid gap-8 grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
-          {animals.map((animal: AnimalWithRelations) => (
-            <AnimalCard key={animal.id} animal={animal} />
-          ))}
+        <div className="mt-12 text-center text-gray-700 text-xl">
+          Содержимое раздела помощи
         </div>
       </div>
     </section>

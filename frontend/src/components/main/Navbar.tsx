@@ -1,7 +1,24 @@
 "use client";
 
 export function Navbar() {
-  const handleClick = (section: string) => {
+  const scrollToSection = (section: string) => {
+    const sections = {
+      about: { selector: null, isTop: true },
+      animals: { selector: '[aria-label="Наши питомцы"]', isTop: false },
+      help: { selector: '[aria-label="Помощь приюту"]', isTop: false },
+      contacts: { selector: null, isTop: false },
+      profile: { selector: null, isTop: false },
+    };
+
+    const target = sections[section as keyof typeof sections];
+
+    if (target?.isTop) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (target?.selector) {
+      const element = document.querySelector(target.selector);
+      element?.scrollIntoView({ behavior: "smooth" });
+    }
+
     console.log(`Переход к секции: ${section}`);
   };
 
@@ -18,35 +35,35 @@ export function Navbar() {
 
         <nav className="flex items-center gap-10 text-gray-800 font-medium text-[20px]">
           <button
-            onClick={() => handleClick("about")}
+            onClick={() => scrollToSection("about")}
             className="hover:text-[#7a4f2a] transition cursor-pointer"
           >
             О нас
           </button>
 
           <button
-            onClick={() => handleClick("pets")}
+            onClick={() => scrollToSection("animals")}
             className="hover:text-[#7a4f2a] transition cursor-pointer"
           >
             Питомцы
           </button>
 
           <button
-            onClick={() => handleClick("help")}
+            onClick={() => scrollToSection("help")}
             className="hover:text-[#7a4f2a] transition cursor-pointer"
           >
             Помощь
           </button>
 
           <button
-            onClick={() => handleClick("contacts")}
+            onClick={() => scrollToSection("contacts")}
             className="hover:text-[#7a4f2a] transition cursor-pointer"
           >
             Контакты
           </button>
 
           <button
-            onClick={() => handleClick("profile")}
+            onClick={() => scrollToSection("profile")}
             className="text-2xl hover:scale-110 transition cursor-pointer"
           >
             👤
