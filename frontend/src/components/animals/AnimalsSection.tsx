@@ -1,50 +1,8 @@
 import { api } from "@/api";
-import type { AnimalWithRelations } from "@/types/animals";
-import { AnimalCard } from "./AnimalCard";
+import { AnimalsSectionClient } from "./AnimalsSectionClient";
 
 export async function AnimalsSection() {
   const { animals, total } = await api.animals.getAll();
 
-  return (
-    <section
-      className="min-h-screen w-full"
-      style={{
-        backgroundImage: `linear-gradient(to bottom,
-          #fffef9 0%,
-          #fcf9f3 18%,
-          #f8f4ec 35%,
-          #f2ebe0 52%,
-          #ebe3d8 70%,
-          #e5dccf 88%,
-          #e0d6c8 100%
-        )`,
-      }}
-      aria-label="Наши питомцы"
-    >
-      <div className="mx-auto w-full px-30 pb-18 pt-12">
-        <div className="relative mb-16">
-          <h2 className="text-center text-4xl font-semibold tracking-tight text-amber-900/80 sm:text-5xl">
-            Наши питомцы
-          </h2>
-
-          <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 w-48 h-4">
-            <span
-              className="absolute left-0 bottom-0 w-full h-[2px] bg-green-500/70"
-              style={{
-                transform: "scaleX(0.95) scaleY(1.5)",
-                borderRadius: "50%",
-                filter: "drop-shadow(0 2px 2px rgba(34, 197, 94, 0.2))",
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="mt-12 grid gap-8 grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
-          {animals.map((animal: AnimalWithRelations) => (
-            <AnimalCard key={animal.id} animal={animal} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return <AnimalsSectionClient allAnimals={animals} total={total} />;
 }

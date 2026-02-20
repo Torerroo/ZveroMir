@@ -3,6 +3,7 @@ export async function HelpSection() {
     <section
       className="min-h-screen w-full"
       aria-label="Помощь приюту"
+      id="help-section"
       style={{
         backgroundImage: `linear-gradient(to bottom,
           #e0d6c8 0%,
@@ -15,7 +16,7 @@ export async function HelpSection() {
         )`,
       }}
     >
-      <div className="mx-auto w-full px-30 pb-18 pt-16">
+      <div className="mx-auto w-full px-30 py-12">
         <div className="relative mb-16">
           <h2 className="text-center text-4xl font-semibold tracking-tight text-amber-900/80 sm:text-5xl">
             Помощь приюту

@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { Navbar } from "./Navbar";
 
-export function Main() {
+export function Hero() {
   return (
     <div className="h-screen relative overflow-hidden">
       <Image
-        src="/main.png"
+        src="/hero.png"
         alt="Background"
         fill
         className="object-cover object-bottom-left"
