@@ -1,6 +1,5 @@
 import Image from "next/image";
-
-import { Menu } from "@/components/layout/Menu";
+import { Navbar } from "./Navbar";
 
 export function Main() {
   return (
@@ -14,26 +13,27 @@ export function Main() {
         quality={100}
       />
 
-      {/* Плавный переход снизу, чтобы фон мягко сходил на основной градиент */}
+      <Navbar />
+
+      <div className="relative z-10 h-full flex items-center justify-end">
+        <div className="max-w-xl mr-56 bg-white/85 backdrop-blur-sm p-10 rounded-3xl shadow-xl">
+          <h1 className="text-5xl font-bold text-[#7a4f2a] uppercase leading-tight">
+            Найди своего
+            <br />
+            нового друга
+          </h1>
+
+          <p className="mt-4 text-[20px] text-gray-700 leading-relaxed">
+            Подари любовь и дом тем, кто так ждёт заботу. Наш приют помогает
+            бездомным животным обрести счастливую семью и новое начало.
+          </p>
+        </div>
+      </div>
+
       <div
-        className="absolute bottom-0 left-0 right-0 h-[7%] pointer-events-none bg-linear-to-t from-[#fffef9] to-transparent"
+        className="absolute bottom-0 left-0 right-0 h-[10%] pointer-events-none bg-linear-to-t from-[#fffef9] to-transparent"
         aria-hidden
       />
-
-      <header className="absolute top-0 left-0 right-0 z-10 px-5 pt-2">
-        <div className="w-[200px] h-[72px] flex items-center shrink-0">
-          <Image
-            src="/logo.svg"
-            alt="ЗвероМир"
-            width={200}
-            height={200}
-            priority
-            className="w-full h-auto object-contain object-left"
-          />
-        </div>
-
-        <Menu />
-      </header>
     </div>
   );
 }
