@@ -8,6 +8,9 @@ type Props = {
 };
 
 export function AnimalCard({ animal }: Props) {
+  const mainImageUrl =
+    animal.images.find((img) => img.isMain)?.url || animal.images[0]?.url;
+
   const speciesIcon =
     animal.species === "Кот"
       ? "😺"
@@ -42,7 +45,7 @@ export function AnimalCard({ animal }: Props) {
       ? "bg-emerald-100 text-emerald-700 border-emerald-200"
       : animal.size === "Средний"
       ? "bg-amber-100 text-amber-700 border-amber-200"
-      : "bg-orange-100 text-orange-700 border-orange-200"; // Большой
+      : "bg-orange-100 text-orange-700 border-orange-200";
 
   return (
     <Link
@@ -52,13 +55,16 @@ export function AnimalCard({ animal }: Props) {
     >
       <article className="overflow-hidden rounded-3xl bg-white/65 ring-1 ring-black/5 backdrop-blur transition-all duration-300 will-change-transform hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.16)] shadow-[0_10px_30px_rgba(0,0,0,0.10)] h-full flex flex-col">
         <div className="relative aspect-4/3 w-full overflow-hidden">
-          {/* <Image
-            src={animal.imageUrl ?? "/placeholder-animal.jpg"}
-            alt={animal.name}
-            fill
-            className="object-cover transition duration-500 group-hover:scale-[1.04]"
-            sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          /> */}
+          {mainImageUrl && (
+            <Image
+              src={mainImageUrl}
+              alt={animal.name}
+              fill
+              unoptimized
+              className="object-cover object-[center_20%] transition duration-500 group-hover:scale-[1.04]"
+              sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          )}
 
           <div className="absolute inset-0 bg-linear-to-t from-black/25 to-transparent opacity-90 transition group-hover:opacity-100" />
         </div>
