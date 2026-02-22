@@ -4,6 +4,13 @@ export type AnimalSize = "Маленький" | "Средний" | "Большо
 
 export type AnimalStatus = "Доступно" | "Зарезервировано" | "Пристроено";
 
+export interface AnimalImage {
+  id: number;
+  animalId: number;
+  url: string;
+  isMain: boolean;
+}
+
 export interface Animal {
   id: number;
   name: string;
@@ -13,9 +20,7 @@ export interface Animal {
   size: AnimalSize;
   status: AnimalStatus;
   description?: string | null;
-  imageUrl?: string | null;
-  categoryId?: number;
-  speciesId?: number;
+  images: AnimalImage[];
   createdAt: string;
   updatedAt: string;
 }

@@ -1,19 +1,12 @@
 export type Gender = "Мальчик" | "Девочка" | "Неизвестно";
-
 export type AnimalSize = "Маленький" | "Средний" | "Большой";
-
 export type AnimalStatus = "Доступно" | "Зарезервировано" | "Пристроено";
 
-export interface Category {
+export interface AnimalImage {
   id: number;
-  name: string;
-}
-
-export interface Species {
-  id: number;
-  name: string;
-  categoryId: number;
-  category?: Category;
+  animalId: number;
+  url: string;
+  isMain: boolean;
 }
 
 export interface Animal {
@@ -25,16 +18,24 @@ export interface Animal {
   size: AnimalSize;
   status: AnimalStatus;
   description?: string | null;
-  imageUrl?: string | null;
-  categoryId?: number;
-  speciesId?: number;
+  categoryId: number;
+  speciesId: number;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface AnimalWithRelations extends Animal {
+export interface AnimalWithRelations extends Omit<
+  Animal,
+  "categoryId" | "speciesId"
+> {
   category: string;
   species: string;
+  images: AnimalImage[];
+}
+
+export interface AnimalsResponse {
+  animals: AnimalWithRelations[];
+  total: number;
 }
 
 export interface AnimalRow {
@@ -46,15 +47,18 @@ export interface AnimalRow {
   size: string;
   status: string;
   description: string | null;
-  imageUrl: string | null;
   created_at: string;
   updated_at: string;
+  category_id: number;
+  species_id: number;
   category_name: string;
   species_name: string;
   deleted_at: string | null;
 }
 
-export interface AnimalsResponse {
-  animals: AnimalWithRelations[];
-  total: number;
+export interface AnimalImageRow {
+  id: number;
+  animal_id: number;
+  file_path: string;
+  is_main: number;
 }

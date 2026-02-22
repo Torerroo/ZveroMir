@@ -56,14 +56,20 @@ const baseAnimalFields = {
     .optional(),
   category: z.string().min(1, "Категория обязательна"),
   species: z.string().min(1, "Вид животного обязателен"),
-  imageUrl: z
-    .string()
-    .url("Неверный URL изображения")
-    .optional()
-    .or(z.literal("")),
+  images: z.array(z.string()).optional(),
 };
 
-export const animalCreateSchema = z.object(baseAnimalFields);
+export const animalCreateSchema = z.object({
+  name: z.string().min(1, "Имя обязательно").max(100),
+  category: z.string().min(1, "Категория обязательна"),
+  species: z.string().min(1, "Вид животного обязателен"),
+  breed: z.string().min(1, "Порода обязательна"),
+  age: z.coerce.number().int().min(0).max(50).optional().nullable(),
+  gender: z.enum(["Мальчик", "Девочка", "Неизвестно"]),
+  size: z.enum(["Маленький", "Средний", "Большой"]),
+  description: z.string().min(10).max(1000).optional(),
+});
+
 export type AnimalCreate = z.infer<typeof animalCreateSchema>;
 export const animalUpdateSchema = animalCreateSchema;
 export type AnimalUpdate = z.infer<typeof animalUpdateSchema>;

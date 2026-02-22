@@ -1,28 +1,39 @@
 import {
   AnimalCreate,
   AnimalQuery,
-  AnimalIdParams,
   AnimalUpdate,
 } from "../validators/animalValidation.schema";
 import { animalRepository } from "../repositories/animalRepository";
 import { notFoundError } from "../utils/errors";
+import { AnimalWithRelations } from "../types/animalType";
 
 class AnimalService {
-  async create(data: AnimalCreate) {
-    const category = animalRepository.findCategoryByName(data.category);
-    if (!category) {
-      throw notFoundError("Категория");
-    }
+  private readonly baseUrl = process.env.BASE_URL || "http://localhost:8080";
 
+  async getAll(filters: AnimalQuery = {}) {
+    const result = await animalRepository.findAll(filters);
+    result.animals.forEach((animal) => this.formatImageUrls(animal));
+    return result;
+  }
+
+  async getById(id: number) {
+    const animal = animalRepository.findById(id);
+    if (!animal) throw notFoundError("Животное");
+
+    this.formatImageUrls(animal);
+    return animal;
+  }
+
+  async create(data: AnimalCreate, imagePaths: string[] = []) {
+    const category = animalRepository.findCategoryByName(data.category);
     const species = animalRepository.findSpeciesByNameAndCategory(
       data.species,
-      category.id
+      category?.id
     );
-    if (!species) {
-      throw notFoundError("Вид животного для указанной категории");
-    }
 
-    const animalData = {
+    if (!category || !species) throw notFoundError("Категория или Вид");
+
+    const animalId = animalRepository.create({
       name: data.name,
       breed: data.breed,
       age: data.age ?? null,
@@ -30,57 +41,28 @@ class AnimalService {
       size: data.size,
       status: "Доступно" as const,
       description: data.description ?? null,
-      imageUrl: data.imageUrl ?? null,
       categoryId: category.id,
       speciesId: species.id,
-      createdAt: new Date().toISOString(),
-    };
+    });
 
-    const newAnimalId = animalRepository.create(animalData);
-
-    const createdAnimal = animalRepository.findById(newAnimalId);
-
-    if (!createdAnimal) {
-      throw new Error("Не удалось получить созданное животное");
+    if (imagePaths.length > 0) {
+      animalRepository.addImages(animalId, imagePaths);
     }
 
-    return createdAnimal;
+    return this.getById(animalId);
   }
 
-  async getAll(filters: AnimalQuery = {}) {
-    return animalRepository.findAll(filters);
-  }
-
-  async getSpecies() {
-    return animalRepository.getAllSpecies();
-  }
-
-  async getById(id: AnimalIdParams["id"]) {
-    const animal = animalRepository.findById(id);
-    if (!animal) {
-      throw notFoundError("Животное");
-    }
-    return animal;
-  }
-
-  async update(id: AnimalIdParams["id"], data: AnimalUpdate) {
+  async update(id: number, data: AnimalUpdate, imagePaths: string[] = []) {
     const existingAnimal = animalRepository.findById(id);
-    if (!existingAnimal) {
-      throw notFoundError("Животное");
-    }
+    if (!existingAnimal) throw notFoundError("Животное");
 
     const category = animalRepository.findCategoryByName(data.category);
-    if (!category) {
-      throw notFoundError("Категория");
-    }
-
     const species = animalRepository.findSpeciesByNameAndCategory(
       data.species,
-      category.id
+      category?.id
     );
-    if (!species) {
-      throw notFoundError("Вид животного для указанной категории");
-    }
+
+    if (!category || !species) throw notFoundError("Категория или Вид");
 
     const updateData = {
       name: data.name,
@@ -90,34 +72,38 @@ class AnimalService {
       size: data.size,
       status: existingAnimal.status,
       description: data.description ?? null,
-      imageUrl: data.imageUrl ?? null,
       categoryId: category.id,
       speciesId: species.id,
     };
 
-    const updated = animalRepository.update(id, updateData);
-    if (!updated) {
-      throw new Error("Не удалось обновить животное");
+    animalRepository.update(id, updateData);
+
+    if (imagePaths.length > 0) {
+      animalRepository.addImages(id, imagePaths);
     }
 
-    const updatedAnimal = animalRepository.findById(id);
-    if (!updatedAnimal) {
-      throw new Error("Не удалось получить обновленное животное");
-    }
-
-    return updatedAnimal;
+    return this.getById(id);
   }
 
-  async delete(id: AnimalIdParams["id"]) {
-    const existingAnimal = animalRepository.findById(id);
-    if (!existingAnimal) {
+  async getSpecies() {
+    return animalRepository.getAllSpecies();
+  }
+
+  async delete(id: number) {
+    if (!animalRepository.findById(id)) {
       throw notFoundError("Животное");
     }
 
-    const deleted = animalRepository.delete(id);
-    if (!deleted) {
-      throw new Error("Не удалось удалить животное");
-    }
+    animalRepository.deleteImagesByAnimalId(id);
+
+    animalRepository.delete(id);
+  }
+
+  private formatImageUrls(animal: AnimalWithRelations): void {
+    animal.images.forEach((img) => {
+      const cleanPath = img.url.startsWith("/") ? img.url : `/${img.url}`;
+      img.url = `${this.baseUrl}/static${cleanPath}`;
+    });
   }
 }
 

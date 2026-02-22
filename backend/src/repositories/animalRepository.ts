@@ -1,8 +1,13 @@
 import { db } from "../db";
-import { AnimalRow, AnimalWithRelations } from "../types/animalType";
+import {
+  AnimalRow,
+  AnimalWithRelations,
+  AnimalImageRow,
+  AnimalImage,
+} from "../types/animalType";
 import { AnimalQuery } from "../validators/animalValidation.schema";
 
-function mapRowToAnimal(row: AnimalRow): AnimalWithRelations {
+function mapRowToAnimal(row: AnimalRow): Omit<AnimalWithRelations, "images"> {
   return {
     id: row.id,
     name: row.name,
@@ -12,7 +17,6 @@ function mapRowToAnimal(row: AnimalRow): AnimalWithRelations {
     size: row.size as any,
     status: row.status as any,
     description: row.description,
-    imageUrl: row.imageUrl,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     category: row.category_name,
@@ -21,10 +25,27 @@ function mapRowToAnimal(row: AnimalRow): AnimalWithRelations {
 }
 
 class AnimalRepository {
-  findAll(filters: AnimalQuery = {}): {
-    animals: AnimalWithRelations[];
-    total: number;
-  } {
+  private getImagesForAnimals(animalIds: number[]): AnimalImage[] {
+    if (animalIds.length === 0) return [];
+
+    const placeholders = animalIds.map(() => "?").join(",");
+    const rows = db
+      .prepare(
+        `SELECT id, animal_id, file_path, is_main 
+         FROM animal_images 
+         WHERE animal_id IN (${placeholders}) AND deleted_at IS NULL`
+      )
+      .all(...animalIds) as AnimalImageRow[];
+
+    return rows.map((row) => ({
+      id: row.id,
+      animalId: row.animal_id,
+      url: row.file_path,
+      isMain: Boolean(row.is_main),
+    }));
+  }
+
+  findAll(filters: AnimalQuery = {}) {
     const conditions: string[] = ["a.deleted_at IS NULL"];
     const params: Record<string, any> = {};
 
@@ -32,63 +53,49 @@ class AnimalRepository {
       conditions.push("a.category_id = @categoryId");
       params.categoryId = filters.categoryId;
     }
-
     if (filters.speciesId) {
       conditions.push("a.species_id = @speciesId");
       params.speciesId = filters.speciesId;
     }
-
     if (filters.speciesName) {
       conditions.push("s.name = @speciesName");
       params.speciesName = filters.speciesName;
     }
-
     if (filters.gender) {
       conditions.push("a.gender = @gender");
       params.gender = filters.gender;
     }
-
     if (filters.size) {
       conditions.push("a.size = @size");
       params.size = filters.size;
     }
-
     if (filters.q) {
-      const searchTerm = `%${filters.q.trim()}%`;
+      params.searchTerm = `%${filters.q.trim()}%`;
       conditions.push(
         "(a.name COLLATE NOCASE LIKE @searchTerm OR a.breed COLLATE NOCASE LIKE @searchTerm)"
       );
-      params.searchTerm = searchTerm;
     }
 
     const whereClause = `WHERE ${conditions.join(" AND ")}`;
 
-    // 1. Считаем total
-    const countQuery = `
-      SELECT COUNT(*) as total 
-      FROM animals a 
-      JOIN species s ON a.species_id = s.id 
-      ${whereClause}
-    `;
-    const totalResult = db.prepare(countQuery).get(params) as { total: number };
+    const totalResult = db
+      .prepare(
+        `SELECT COUNT(*) as total FROM animals a JOIN species s ON a.species_id = s.id ${whereClause}`
+      )
+      .get(params) as { total: number };
 
-    // 2. Строим запрос данных с динамической пагинацией
     let paginationSql = "";
     if (filters.limit !== undefined) {
-      paginationSql += " LIMIT @limit";
+      paginationSql = " LIMIT @limit OFFSET @offset";
       params.limit = filters.limit;
-      if (filters.offset !== undefined) {
-        paginationSql += " OFFSET @offset";
-        params.offset = filters.offset;
-      }
+      params.offset = filters.offset || 0;
     }
 
     const dataQuery = `
-      SELECT
-        a.id, a.name, a.breed, a.age, a.gender, a.size, a.status,
-        a.description, a.image_url as imageUrl,
-        a.created_at as created_at, a.updated_at as updated_at,
-        c.name as category_name,
+      SELECT 
+        a.id, a.name, a.breed, a.age, a.gender, a.size, a.status, a.description,
+        a.created_at, a.updated_at, a.category_id, a.species_id,
+        c.name as category_name, 
         s.name as species_name
       FROM animals a
       JOIN categories c ON a.category_id = c.id
@@ -99,45 +106,51 @@ class AnimalRepository {
     `;
 
     const rows = db.prepare(dataQuery).all(params) as AnimalRow[];
+    const animalIds = rows.map((r) => r.id);
+    const allImages = this.getImagesForAnimals(animalIds);
 
-    return {
-      animals: rows.map(mapRowToAnimal),
-      total: totalResult.total,
-    };
+    const animals = rows.map((row) => ({
+      ...mapRowToAnimal(row),
+      images: allImages.filter((img) => img.animalId === row.id),
+    }));
+
+    return { animals, total: totalResult.total };
   }
 
-  getAllSpecies() {
-    const query = `
-			SELECT s.id, s.name, s.category_id as categoryId, c.name as categoryName 
-			FROM species s
-			JOIN categories c ON s.category_id = c.id
-		`;
-    return db.prepare(query).all() as {
-      id: number;
-      name: string;
-      categoryId: number;
-      categoryName: string;
-    }[];
-  }
-
-  // Остальные методы без изменений, но убедись что они есть
   findById(id: number): AnimalWithRelations | null {
     const query = `
       SELECT a.*, c.name as category_name, s.name as species_name
       FROM animals a
       JOIN categories c ON a.category_id = c.id
       JOIN species s ON a.species_id = s.id
-      WHERE a.id = @id AND a.deleted_at IS NULL
+      WHERE a.id = ? AND a.deleted_at IS NULL
     `;
-    const row = db.prepare(query).get({ id }) as AnimalRow | undefined;
-    return row ? mapRowToAnimal(row) : null;
+    const row = db.prepare(query).get(id) as AnimalRow | undefined;
+    if (!row) return null;
+
+    return {
+      ...mapRowToAnimal(row),
+      images: this.getImagesForAnimals([id]),
+    };
   }
 
   create(data: any): number {
-    const query = `INSERT INTO animals (name, breed, age, gender, size, status, description, image_url, category_id, species_id, created_at, updated_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`;
-    return db.prepare(query).run(...Object.values(data))
-      .lastInsertRowid as number;
+    const query = `
+      INSERT INTO animals (name, breed, age, gender, size, status, description, category_id, species_id)
+      VALUES (@name, @breed, @age, @gender, @size, @status, @description, @categoryId, @speciesId)
+    `;
+    return db.prepare(query).run(data).lastInsertRowid as number;
+  }
+
+  update(id: number, data: any): boolean {
+    const query = `
+      UPDATE animals 
+      SET name=@name, breed=@breed, age=@age, gender=@gender, size=@size, 
+          status=@status, description=@description, category_id=@categoryId, species_id=@speciesId,
+          updated_at=CURRENT_TIMESTAMP 
+      WHERE id=@id
+    `;
+    return db.prepare(query).run({ ...data, id }).changes > 0;
   }
 
   findCategoryByName(name: string) {
@@ -154,9 +167,40 @@ class AnimalRepository {
       .get(name, categoryId) as any;
   }
 
-  update(id: number, data: any): boolean {
-    const query = `UPDATE animals SET name=?, breed=?, age=?, gender=?, size=?, status=?, description=?, image_url=?, category_id=?, species_id=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`;
-    return db.prepare(query).run(...Object.values(data), id).changes > 0;
+  addImages(animalId: number, filePaths: string[]) {
+    const stmt = db.prepare(`
+			INSERT INTO animal_images (animal_id, file_path, is_main) 
+			VALUES (
+				?, 
+				?, 
+				(CASE 
+					WHEN ? = 0 AND NOT EXISTS (
+						SELECT 1 FROM animal_images WHERE animal_id = ? AND is_main = 1 AND deleted_at IS NULL
+					) THEN 1 
+					ELSE 0 
+				END)
+			)
+		`);
+
+    const insertMany = db.transaction((paths: string[]) => {
+      paths.forEach((path, index) => {
+        stmt.run(animalId, path, index, animalId);
+      });
+    });
+
+    insertMany(filePaths);
+  }
+
+  getAllSpecies() {
+    return db
+      .prepare(
+        `
+      SELECT s.id, s.name, s.category_id as categoryId, c.name as categoryName 
+      FROM species s
+      JOIN categories c ON s.category_id = c.id
+    `
+      )
+      .all() as any[];
   }
 
   delete(id: number): boolean {
@@ -167,6 +211,12 @@ class AnimalRepository {
         )
         .run(id).changes > 0
     );
+  }
+
+  deleteImagesByAnimalId(animalId: number) {
+    const query =
+      "UPDATE animal_images SET deleted_at = CURRENT_TIMESTAMP WHERE animal_id = ?";
+    db.prepare(query).run(animalId);
   }
 }
 

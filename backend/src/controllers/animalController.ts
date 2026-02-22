@@ -59,7 +59,15 @@ class AnimalController {
     try {
       const parsedData = animalCreateSchema.safeParse(req.body);
       if (!parsedData.success) return next(validationError(parsedData.error));
-      const createdAnimal = await animalService.create(parsedData.data);
+
+      const files = req.files as Express.Multer.File[];
+      const imagePaths =
+        files?.map((file) => `/animals/${file.filename}`) || [];
+
+      const createdAnimal = await animalService.create(
+        parsedData.data,
+        imagePaths
+      );
       res.status(201).json(createdAnimal);
     } catch (error) {
       next(error);
@@ -75,11 +83,18 @@ class AnimalController {
       const parsedParams = animalIdParamSchema.safeParse(req.params);
       if (!parsedParams.success)
         return next(validationError(parsedParams.error));
+
       const parsedData = animalUpdateSchema.safeParse(req.body);
       if (!parsedData.success) return next(validationError(parsedData.error));
+
+      const files = req.files as Express.Multer.File[];
+      const imagePaths =
+        files?.map((file) => `/animals/${file.filename}`) || [];
+
       const updatedAnimal = await animalService.update(
         parsedParams.data.id,
-        parsedData.data
+        parsedData.data,
+        imagePaths
       );
       res.json(updatedAnimal);
     } catch (error) {

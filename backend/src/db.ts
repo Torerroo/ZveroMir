@@ -21,39 +21,43 @@ export async function connectDB(): Promise<boolean> {
 export async function runMigrations(): Promise<void> {
   console.log("🔍 Проверяем миграции...");
 
+  // 1. Создаем техническую таблицу ПЕРЕД всем остальным
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS migrations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT UNIQUE NOT NULL,
+      applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   try {
-    // Читаем список миграций из папки
     const migrationsDir = path.join(process.cwd(), "sql", "migrations");
     const files = await fs.readdir(migrationsDir);
     const migrationFiles = files.filter((file) => file.endsWith(".sql")).sort();
 
-    // Получаем уже применённые миграции
-    let appliedNames = new Set<string>();
-    try {
-      const appliedMigrations = db
-        .prepare("SELECT name FROM migrations")
-        .all() as { name: string }[];
-      appliedNames = new Set(appliedMigrations.map((m) => m.name));
-    } catch {
-      // Таблица migrations ещё не создана
-    }
+    const appliedMigrations = db
+      .prepare("SELECT name FROM migrations")
+      .all() as { name: string }[];
+    const appliedNames = new Set(appliedMigrations.map((m) => m.name));
 
-    // Применяем только новые миграции
     for (const file of migrationFiles) {
       const migrationName = file.replace(".sql", "");
+
       if (!appliedNames.has(migrationName)) {
         console.log(`📦 Применяем миграцию: ${file}`);
         const filePath = path.join(migrationsDir, file);
         const sql = await fs.readFile(filePath, "utf8");
 
-        db.exec(sql);
-
-        // Фиксируем применение
-        db.prepare("INSERT INTO migrations (name) VALUES (?)").run(
-          migrationName
+        // Используем транзакцию, чтобы миграция и запись о ней были атомарны
+        const applyMigration = db.transaction(
+          (content: string, name: string) => {
+            db.exec(content);
+            db.prepare("INSERT INTO migrations (name) VALUES (?)").run(name);
+          }
         );
 
-        console.log(`✅ Миграция ${file} применена`);
+        applyMigration(sql, migrationName);
+        console.log(`✅ Миграция ${file} успешно применена`);
       } else {
         console.log(`⏭️ Миграция ${file} уже применена`);
       }
@@ -61,45 +65,39 @@ export async function runMigrations(): Promise<void> {
 
     console.log("✅ Все миграции проверены");
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("❌ Ошибка миграций:", error.message);
-    } else {
-      console.error("❌ Неизвестная ошибка:", error);
-    }
-    throw error;
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("❌ Ошибка миграций:", message);
+    throw error; // Блокируем запуск сервера, если миграции битые
   }
 }
 
 export async function seedData(): Promise<void> {
+  // Проверяем окружение
   if (process.env.NODE_ENV !== "DEV") {
     console.log("⏭️ Сиды пропущены (не DEV окружение)");
     return;
   }
 
-  console.log("🌱 Добавляем тестовые данные...");
-
   try {
-    // Проверяем, есть ли уже данные в animals
-    const existingAnimals = db
+    // Проверка на наличие данных, чтобы не дублировать
+    const existing = db
       .prepare("SELECT COUNT(*) as count FROM animals")
       .get() as { count: number };
-    if (existingAnimals.count > 0) {
-      console.log("⏭️ Тестовые данные уже добавлены");
+    if (existing.count > 0) {
+      console.log("⏭️ Тестовые данные уже в базе");
       return;
     }
 
+    console.log("🌱 Наполнение базы тестовыми данными...");
     const seedPath = path.join(process.cwd(), "sql", "seeds", "dev_seed.sql");
     const sql = await fs.readFile(seedPath, "utf8");
 
+    // Выполняем seed целиком
     db.exec(sql);
-
-    console.log("✅ Тестовые данные добавлены");
+    console.log("✅ Тестовые данные успешно загружены");
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("❌ Ошибка сидов:", error.message);
-    } else {
-      console.error("❌ Неизвестная ошибка:", error);
-    }
-    throw error;
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("❌ Ошибка сидов:", message);
+    // Сиды не критичны для работы сервера, поэтому не выбрасываем throw, если не хотим
   }
 }

@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { connectDB, runMigrations, seedData } from "./db";
 import apiRouter from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
-import { authMiddleware } from "./middleware/auth";
+import path from "path";
 
 dotenv.config({
   debug: false,
@@ -41,8 +41,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(authMiddleware);
-
+app.use("/static", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api", apiRouter);
 
 app.use(errorHandler);
