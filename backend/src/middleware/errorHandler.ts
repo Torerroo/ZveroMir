@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import multer from "multer";
 
 export interface AppError extends Error {
   statusCode?: number;
@@ -7,12 +8,38 @@ export interface AppError extends Error {
 }
 
 export function errorHandler(
-  err: AppError,
+  err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   console.error("error:", err);
+
+  if (err instanceof multer.MulterError) {
+    let message = "Ошибка при загрузке файлов";
+    if (err.code === "LIMIT_FILE_SIZE")
+      message = "Файл слишком большой (макс. 5МБ)";
+    if (err.code === "LIMIT_FILE_COUNT")
+      message = "Превышено максимальное количество файлов (макс. 5)";
+
+    return res.status(400).json({
+      error: {
+        message,
+        code: "FILE_UPLOAD_ERROR",
+        details: [{ path: ["images"], message: err.code }],
+      },
+    });
+  }
+
+  if (err.message && err.message.includes("Разрешены только")) {
+    return res.status(400).json({
+      error: {
+        message: err.message,
+        code: "INVALID_FILE_FORMAT",
+        details: [{ path: ["images"], message: err.message }],
+      },
+    });
+  }
 
   const status =
     err.statusCode && err.statusCode >= 400 && err.statusCode < 600

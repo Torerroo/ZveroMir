@@ -14,4 +14,24 @@ const storage = multer.diskStorage({
   },
 });
 
-export const upload = multer({ storage });
+export const upload = multer({
+  storage,
+  // Ограничим размер файла, например, до 5МБ
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+  // Фильтр по типам файлов
+  fileFilter: (_req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Недопустимый формат файла. Разрешены только jpeg, jpg, png и webp."
+        )
+      );
+    }
+  },
+});
