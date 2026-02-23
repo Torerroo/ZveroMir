@@ -24,8 +24,8 @@ npm install
 ```
 
 ## 🛠 Технологии
-- **Бэкенд:** Express.js
-- **Фронтенд:** Next.js, Tailwind CSS, Three.js
+- **Бэкенд:** Express.js, Multer
+- **Фронтенд:** Next.js, Tailwind, Three.js
 - **База данных:** SQLite, PostgreSQL + Prisma
 
 ## 🎯 План развития
