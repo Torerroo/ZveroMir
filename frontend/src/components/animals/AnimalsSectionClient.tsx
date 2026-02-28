@@ -39,7 +39,7 @@ export function AnimalsSectionClient({
   const [loading, setLoading] = useState(false);
 
   const [selectedSpecies, setSelectedSpecies] = useState<string | number>(
-    "all"
+    "all",
   );
   const [selectedGender, setSelectedGender] = useState<Gender | "all">("all");
   const [selectedSize, setSelectedSize] = useState<AnimalSize | "all">("all");
@@ -330,6 +330,10 @@ export function AnimalsSectionClient({
           </div>
         )}
       </div>
+      <div
+        className="absolute bottom-0 left-0 right-0 h-10 pointer-events-none bg-linear-to-t from-[#e0d6c8] to-transparent z-20"
+        aria-hidden="true"
+      />
     </section>
   );
 }

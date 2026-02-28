@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { Navbar } from "./Navbar";
 
-export function Hero() {
+export function HeroSection() {
   return (
-    <div className="h-screen relative overflow-hidden">
+    <section className="h-screen relative overflow-hidden">
       <Image
         src="/hero.png"
         alt="Background"
@@ -34,6 +34,6 @@ export function Hero() {
         className="absolute bottom-0 left-0 right-0 h-[10%] pointer-events-none bg-linear-to-t from-[#fffef9] to-transparent"
         aria-hidden
       />
-    </div>
+    </section>
   );
 }
