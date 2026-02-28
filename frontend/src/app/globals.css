@@ -32,3 +32,7 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+html {
+  scrollbar-gutter: stable;
+}
