@@ -84,7 +84,7 @@ export function ContactsSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              className="bg-white/80 backdrop-blur-md border border-white p-6 rounded-[2rem] shadow-sm hover:shadow-lg transition-all cursor-pointer group"
+              className="bg-white/80 backdrop-blur-md border border-white p-6 rounded-4xl shadow-sm hover:shadow-lg transition-all cursor-pointer group"
             >
               <div
                 className={`w-12 h-12 rounded-xl ${contact.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
@@ -94,7 +94,7 @@ export function ContactsSection() {
               <p className="text-sm text-gray-500 font-semibold mb-1">
                 {contact.label}
               </p>
-              <p className="text-lg font-bold text-gray-900 break-words">
+              <p className="text-lg font-bold text-gray-900 wrap-break-word">
                 {contact.value}
               </p>
             </motion.div>

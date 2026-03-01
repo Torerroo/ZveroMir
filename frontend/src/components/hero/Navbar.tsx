@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { User, Menu, X } from "lucide-react";
+import { User as UserIcon, Menu, X, LogOut, Loader2 } from "lucide-react";
 import { AuthModal } from "../modals/AuthModal";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isAuthenticated = false;
+  const { isAuth, user, logout, isLoading } = useAuthStore();
 
   const scrollToSection = (id: string) => {
     setIsMobileMenuOpen(false);
@@ -62,20 +63,42 @@ export function Navbar() {
 
             <div className="flex items-center gap-2 sm:gap-4">
               <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#7a4f2a]/10 transition-all cursor-pointer group outline-none"
+                disabled={isLoading}
+                onClick={() => !isAuth && setIsAuthModalOpen(true)}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#7a4f2a]/10 transition-all cursor-pointer group outline-none disabled:opacity-70"
               >
                 <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100 group-hover:border-[#7a4f2a]/20 transition-all">
-                  <User
-                    size={20}
-                    className="text-gray-800 group-hover:text-[#7a4f2a] transition-colors"
-                    strokeWidth={2}
-                  />
+                  {isLoading ? (
+                    <Loader2
+                      size={18}
+                      className="animate-spin text-amber-800"
+                    />
+                  ) : (
+                    <UserIcon
+                      size={20}
+                      className="text-gray-800 group-hover:text-[#7a4f2a] transition-colors"
+                      strokeWidth={2}
+                    />
+                  )}
                 </div>
-                <span className="text-[18px] font-medium text-gray-800 group-hover:text-[#7a4f2a] transition-colors whitespace-nowrap">
-                  {isAuthenticated ? "Профиль" : "Войти"}
+                <span className="text-[18px] font-medium text-gray-800 group-hover:text-[#7a4f2a] transition-colors whitespace-nowrap min-w-[50px]">
+                  {isLoading
+                    ? ""
+                    : isAuth
+                      ? user?.fullName || "Профиль"
+                      : "Войти"}
                 </span>
               </button>
+
+              {!isLoading && isAuth && (
+                <button
+                  onClick={() => logout()}
+                  className="p-2 text-gray-400 hover:text-red-500 transition-colors cursor-pointer outline-none"
+                  title="Выйти"
+                >
+                  <LogOut size={22} />
+                </button>
+              )}
 
               <button
                 className="lg:hidden p-2 text-gray-800 cursor-pointer outline-none hover:bg-black/5 rounded-full transition-colors"
@@ -116,6 +139,18 @@ export function Navbar() {
                   {item}
                 </motion.button>
               ))}
+
+              {!isLoading && isAuth && (
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full py-4 text-center text-xl font-bold text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                >
+                  Выйти
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
