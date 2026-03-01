@@ -173,7 +173,7 @@ export function AnimalsSectionClient({
                 key={filter.id}
                 onClick={() => setSelectedSpecies(filter.id)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all duration-300 cursor-pointer
-                  ${
+									${
                     selectedSpecies === filter.id
                       ? "bg-amber-900 text-white border-amber-900 shadow-lg scale-105"
                       : "bg-white text-amber-900 border-amber-100 hover:bg-amber-50"
@@ -187,7 +187,7 @@ export function AnimalsSectionClient({
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`ml-2 px-6 py-3 rounded-2xl border flex items-center gap-2 transition-all cursor-pointer
-                ${
+								${
                   showFilters
                     ? "bg-green-600 text-white border-green-600"
                     : "bg-white text-green-700 border-green-100"
@@ -217,7 +217,7 @@ export function AnimalsSectionClient({
                           key={g}
                           onClick={() => setSelectedGender(g as any)}
                           className={`px-5 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer
-                                ${
+																${
                                   selectedGender === g
                                     ? "bg-amber-200 border-amber-300 text-amber-900"
                                     : "bg-white border-gray-100 text-gray-600"
@@ -238,7 +238,7 @@ export function AnimalsSectionClient({
                           key={s}
                           onClick={() => setSelectedSize(s as any)}
                           className={`px-5 py-2 rounded-xl border text-sm font-medium transition-all cursor-pointer
-                                ${
+																${
                                   selectedSize === s
                                     ? "bg-amber-200 border-amber-300 text-amber-900"
                                     : "bg-white border-gray-100 text-gray-600"
@@ -258,31 +258,33 @@ export function AnimalsSectionClient({
         <div
           className={
             loading
-              ? "opacity-50 pointer-events-none transition-opacity"
-              : "transition-opacity"
+              ? "opacity-50 pointer-events-none transition-opacity duration-300"
+              : "transition-opacity duration-300"
           }
         >
           {visibleAnimals.length > 0 ? (
             <motion.div
               ref={gridRef}
-              layout
+              layout="position"
               className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(320px,1fr))]"
             >
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="popLayout" initial={false}>
                 {visibleAnimals.map((animal, index) => (
                   <motion.div
                     key={animal.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    layout="position"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{
                       opacity: 0,
-                      scale: 0.9,
-                      transition: { duration: 0.2 },
+                      scale: 0.95,
+                      transition: { duration: 0.15 },
                     }}
                     transition={{
-                      duration: 0.4,
-                      delay: isMounted ? 0 : index * 0.05,
+                      type: "tween",
+                      ease: "easeOut",
+                      duration: 0.3,
+                      delay: isMounted ? 0 : index * 0.03,
                     }}
                   >
                     <AnimalCard animal={animal} />
