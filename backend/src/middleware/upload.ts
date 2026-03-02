@@ -2,6 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
+// TODO обезопасить например от этого '../../../etc/passwd'
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     const dir = "./uploads/animals";
