@@ -1,7 +1,5 @@
 export type Gender = "Мальчик" | "Девочка" | "Неизвестно";
-
 export type AnimalSize = "Маленький" | "Средний" | "Большой";
-
 export type AnimalStatus = "Доступно" | "Зарезервировано" | "Пристроено";
 
 export interface AnimalImage {
@@ -28,16 +26,4 @@ export interface Animal {
 export interface AnimalWithRelations extends Animal {
   category: string;
   species: string;
-}
-
-export interface AnimalsResponse {
-  animals: AnimalWithRelations[];
-  total: number;
-}
-
-export interface SpeciesResponse {
-  id: number;
-  name: string;
-  categoryId: number;
-  categoryName: string;
 }

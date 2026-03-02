@@ -1,3 +1,4 @@
+import { User } from "@/types/user";
 import { z } from "zod";
 
 export const loginSchema = z.object({
@@ -14,3 +15,13 @@ export const registerSchema = z.object({
 });
 
 export type RegisterData = z.infer<typeof registerSchema>;
+
+export interface AuthResponse {
+  user: User;
+}
+
+export interface AuthError {
+  message: string;
+  code?: string;
+  details?: Record<string, string>;
+}

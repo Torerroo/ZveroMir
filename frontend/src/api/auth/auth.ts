@@ -1,6 +1,5 @@
 import { http } from "../http";
-import type { AuthResponse } from "../../types/auth";
-import type { LoginData, RegisterData } from "./auth.schema";
+import type { AuthResponse, LoginData, RegisterData } from "./auth.schema";
 
 export const authApi = {
   login: (data: LoginData) =>

@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { User } from "../types/auth";
-import { authApi } from "../api/auth/auth";
+import { User } from "../types/user";
 import { LoginData, RegisterData } from "../api/auth/auth.schema";
+import { api } from "@/api";
 
 interface AuthState {
   user: User | null;
@@ -21,7 +21,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (data) => {
     try {
-      const res = await authApi.login(data);
+      const res = await api.auth.login(data);
       set({ user: res.user, isAuth: true });
     } catch (error) {
       set({ user: null, isAuth: false });
@@ -31,7 +31,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   register: async (data) => {
     try {
-      const res = await authApi.register(data);
+      const res = await api.auth.register(data);
       set({ user: res.user, isAuth: true });
     } catch (error) {
       set({ user: null, isAuth: false });
@@ -41,7 +41,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-      await authApi.logout();
+      await api.auth.logout();
       set({ user: null, isAuth: false });
     } catch (error) {
       console.error("Logout failed", error);
@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   checkAuth: async () => {
     set({ isLoading: true });
     try {
-      const res = await authApi.getMe();
+      const res = await api.auth.getMe();
       set({ user: res.user, isAuth: true });
     } catch (error) {
       console.error("Login store error:", error);
