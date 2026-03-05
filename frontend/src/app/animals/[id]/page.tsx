@@ -11,7 +11,7 @@ type Props = {
 
 export default async function AnimalPage({ params }: Props) {
   const { id } = await params;
-  const animal = (await api.animals.getById(id)) as AnimalWithRelations | null;
+  const animal = await api.animals.getById(id);
 
   const ageText =
     animal?.age !== null && animal?.age !== undefined

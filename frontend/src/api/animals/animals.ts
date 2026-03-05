@@ -15,8 +15,14 @@ export const animalsApi = {
 
   getSpecies: () => http.request<SpeciesResponse[]>("/api/animals/species"),
 
-  getById: (id: string) =>
-    http.request<AnimalWithRelations>(`/api/animals/${id}`),
+  getById: async (id: string): Promise<AnimalWithRelations | null> => {
+    try {
+      return await http.request<AnimalWithRelations>(`/api/animals/${id}`);
+    } catch (error) {
+      console.warn(`Animal with id ${id} not found or request failed ${error}`);
+      return null;
+    }
+  },
 
   create: (data: CreateAnimalData) =>
     http.request<AnimalWithRelations>("/api/animals", {
