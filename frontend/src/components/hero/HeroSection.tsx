@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Navbar } from "./Navbar";
+import { Navbar } from "../layout/Navbar";
 
 export function HeroSection() {
   return (
@@ -13,7 +13,7 @@ export function HeroSection() {
         quality={100}
       />
 
-      <Navbar />
+      <Navbar transparent />
 
       <div className="relative z-10 h-full flex items-center justify-end">
         <div className="max-w-xl mr-56 bg-white/85 backdrop-blur-sm p-10 rounded-3xl shadow-xl">

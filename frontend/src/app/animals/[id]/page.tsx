@@ -3,6 +3,7 @@ import Link from "next/link";
 import { api } from "@/api";
 import { AnimalGallery } from "@/components/animals/AnimalGallery";
 import { AnimalEditModal } from "@/components/modals/AnimalEditModal";
+import { Navbar } from "@/components/layout/Navbar"; // Импортируем наш навбар
 import type { AnimalWithRelations } from "@/types/animals";
 
 type Props = {
@@ -34,8 +35,9 @@ export default async function AnimalPage({ params }: Props) {
 
   if (!animal) {
     return (
-      <main className="min-h-screen bg-linear-to-b from-[#fffef9] via-[#f5efe5] to-[#e0d6c8]">
-        <div className="mx-auto w-full max-w-3xl px-4 py-14">
+      <div className="min-h-screen bg-linear-to-b from-[#fffef9] via-[#f5efe5] to-[#e0d6c8]">
+        <Navbar />
+        <main className="mx-auto w-full max-w-3xl px-4 py-14">
           <div className="rounded-2xl bg-white/70 p-8 text-center shadow-[0_12px_32px_rgba(0,0,0,0.12)] ring-1 ring-black/5 backdrop-blur">
             <h1 className="text-2xl font-semibold text-neutral-900">
               Животное не найдено
@@ -50,8 +52,8 @@ export default async function AnimalPage({ params }: Props) {
               ← Вернуться к питомцам
             </Link>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
@@ -73,8 +75,11 @@ export default async function AnimalPage({ params }: Props) {
                   : "🐾";
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-[#fffef9] via-[#f5efe5] to-[#e0d6c8]">
-      <div className="mx-auto w-full max-w-6xl px-3 py-6 sm:px-4 sm:py-8 md:py-10 lg:py-12">
+    <div className="min-h-screen bg-[#fcfaf7]">
+      {/* Наш новый навбар */}
+      <Navbar />
+
+      <main className="mx-auto w-full max-w-6xl px-3 py-6 sm:px-4 sm:py-8 md:py-10 lg:py-12">
         <div className="mb-6 flex items-center justify-between gap-3 md:mb-8">
           <Link
             href="/#animals-section"
@@ -142,7 +147,7 @@ export default async function AnimalPage({ params }: Props) {
             оформлением доставки питомца. Блок уже вписан в композицию страницы.
           </div>
         </section>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
