@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useAuthStore } from "@/store/useAuthStore";
 import { AnimalGallery } from "@/components/animals/AnimalGallery";
 import { AnimalEditModal } from "@/components/modals/AnimalEditModal";
 import {
@@ -19,8 +18,6 @@ export function AnimalDetailClient({
 }: {
   animal: AnimalWithRelations;
 }) {
-  const { isAuth } = useAuthStore();
-
   const ageText = animal.age
     ? `${animal.age} ${animal.age === 1 ? "год" : animal.age < 5 ? "года" : "лет"}`
     : "Возраст уточняется";

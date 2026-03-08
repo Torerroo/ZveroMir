@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-
+import { Pencil, X } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
 import type { AnimalWithRelations } from "@/types/animals";
 import { AnimalEditForm } from "@/components/animals/AnimalEditForm";
 
@@ -12,59 +13,94 @@ type Props = {
 
 export function AnimalEditModal({ animal }: Props) {
   const [open, setOpen] = useState(false);
+  const { isAuth } = useAuthStore();
+
+  const handleClose = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = "hidden";
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") handleClose();
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = originalStyle;
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [open, handleClose]);
 
   return (
     <>
       <button
         type="button"
+        disabled={!isAuth}
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-full bg-amber-900/90 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-900 md:text-sm"
+        title={!isAuth ? "Войдите в профиль, чтобы вносить изменения" : ""}
+        className={`
+          inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs md:text-sm font-bold transition-all duration-300 border
+          ${
+            isAuth
+              ? "border-[#7a4f2a]/30 bg-white/50 text-[#7a4f2a] hover:bg-[#eaddd0] hover:border-[#7a4f2a]/50 hover:shadow-sm active:scale-95 cursor-pointer"
+              : "border-[#eaddd0] bg-[#fdfaf7] text-[#7a4f2a]/20 cursor-not-allowed"
+          }
+        `}
       >
-        ✏️ Редактировать
+        <Pencil
+          size={15}
+          className={isAuth ? "text-[#7a4f2a]" : "text-[#7a4f2a]/20"}
+        />
+        <span>Редактировать</span>
       </button>
 
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-40 flex items-center justify-center bg-black/45 px-4 py-6"
-            onClick={() => setOpen(false)}
-          >
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleClose}
+              className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 12 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-              className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white/95 shadow-[0_24px_80px_rgba(0,0,0,0.40)] backdrop-blur-md"
-              onClick={(event) => event.stopPropagation()}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[2.5rem] bg-[#fdfaf7] shadow-[0_32px_120px_rgba(122,79,42,0.2)] border border-[#eaddd0]"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5">
+              <div className="flex items-center justify-between border-b border-[#eaddd0]/50 px-8 py-6 bg-[#fdfaf7]">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
-                    Редактирование питомца
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#7a4f2a]/40 mb-1">
+                    Карточка питомца
                   </p>
-                  <p className="text-sm font-semibold text-neutral-900 md:text-base">
+                  <h3 className="text-2xl font-black text-neutral-900 leading-none">
                     {animal.name}
-                  </p>
+                  </h3>
                 </div>
                 <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 shadow-sm transition hover:bg-neutral-200"
-                  aria-label="Закрыть"
+                  onClick={handleClose}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#7a4f2a]/5 text-[#7a4f2a]/50 transition-all hover:bg-[#7a4f2a]/10 hover:text-[#7a4f2a] cursor-pointer"
                 >
-                  ✕
+                  <X size={22} />
                 </button>
               </div>
 
-              <div className="scrollbar-thin scrollbar-thumb-neutral-300/80 scrollbar-track-transparent flex-1 overflow-y-auto px-5 py-4">
+              <div className="scrollbar-thin scrollbar-thumb-[#eaddd0] scrollbar-track-transparent flex-1 overflow-y-auto px-8 py-8">
                 <AnimalEditForm animal={animal} />
               </div>
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>
