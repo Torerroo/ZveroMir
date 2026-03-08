@@ -5,10 +5,12 @@
 ## 🚀 Запуск проекта
 
 ### Требования
+
 - Node.js 18+
 - npm или yarn
 
 ### Установка и запуск
+
 ```
 # Клонировать репозиторий
 git clone https://github.com/Torerroo/ZveroMir
@@ -18,20 +20,22 @@ cd ZveroMir
 cd backend
 npm install
 
-# Установить зависимости фронтенда  
+# Установить зависимости фронтенда
 cd ../frontend
 npm install
 ```
 
 ## 🛠 Технологии
+
 - **Бэкенд:** Express.js, Multer
 - **Фронтенд:** Next.js, Tailwind, Three.js
 - **База данных:** SQLite, PostgreSQL + Prisma
 
 ## 🎯 План развития
+
 - [x] Попрактиковаться с express.js
 - [ ] Вспомнить next.js
 - [ ] Сделать деплой
-- [ ] Поиграться с three.js
-- [ ] Переписать sqlite на PostgreSQL + Prisma
 - [ ] Написать тесты: backend (Jest + Supertest), frontend (Jest + React Testing Library)
+- [ ] Переписать sqlite на PostgreSQL + Prisma
+- [ ] Поиграться с three.js

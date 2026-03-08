@@ -119,7 +119,7 @@ export function AnimalDetailClient({
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1 }}
-        className="mt-24 md:mt-40 rounded-[2.5rem] md:rounded-[4rem] border border-[#eaddd0] p-10 md:p-24 text-center bg-white/40 backdrop-blur-md"
+        className="mt-24  rounded-[2.5rem] md:rounded-[4rem] border border-[#eaddd0] p-10 md:p-24 text-center bg-white/40 backdrop-blur-md"
       >
         <div className="max-w-2xl mx-auto space-y-8">
           <div className="w-14 h-14 md:w-16 md:h-16 bg-[#7a4f2a]/5 rounded-full flex items-center justify-center mx-auto">

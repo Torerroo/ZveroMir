@@ -33,83 +33,66 @@ export function AnimalGallery({ name, images }: Props) {
     sortedImages.find((img) => img.id === activeId) ?? sortedImages[0];
 
   return (
-    <section
-      aria-label={`Фотографии животного ${name}`}
-      className="space-y-4 md:space-y-5"
-    >
-      <div className="relative aspect-4/3 w-full overflow-hidden rounded-3xl bg-neutral-200/70 shadow-[0_16px_40px_rgba(0,0,0,0.18)]">
+    <section className="relative w-full group">
+      <div className="relative aspect-4/3 w-full overflow-hidden rounded-[2.5rem] bg-neutral-200/70 shadow-[0_24px_80px_rgba(0,0,0,0.15)]">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeImage.id}
-            initial={{ opacity: 0, scale: 1.02, y: 6 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: -6 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="relative h-full w-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="h-full w-full"
           >
             <Image
               src={activeImage.url}
-              alt={name}
               fill
+              className="object-cover"
+              alt={name}
               unoptimized
-              className="object-cover object-[center_20%]"
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 60vw, 720px"
-              priority
             />
           </motion.div>
         </AnimatePresence>
 
-        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-transparent" />
-      </div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-black/40 to-transparent" />
 
-      {sortedImages.length > 1 && (
-        <div
-          className="flex gap-3 overflow-x-auto overflow-y-hidden pb-1 pt-1 md:pt-2"
-          onWheel={(event) => {
-            if (event.deltaY === 0) return;
-            event.currentTarget.scrollBy({
-              left: event.deltaY,
-              behavior: "smooth",
-            });
-            event.preventDefault();
-          }}
-        >
-          {sortedImages.map((image) => {
-            const isActive = image.id === activeImage.id;
+        {images.length > 1 && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 p-2 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl transition-all duration-300 hover:bg-white/30">
+            {sortedImages.slice(0, 5).map((image, index) => {
+              const isActive = image.id === activeId;
+              const isLastVisible = index === 4 && sortedImages.length > 5;
 
-            return (
-              <button
-                key={image.id}
-                type="button"
-                onClick={() => setActiveId(image.id)}
-                className={`group relative h-24 w-32 shrink-0 overflow-hidden rounded-2xl border bg-neutral-200/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f5efe5] md:h-28 md:w-40 ${
-                  isActive
-                    ? "border-amber-500/80 ring-1 ring-amber-500/70"
-                    : "border-white/70"
-                }`}
-                aria-label={isActive ? "Текущее фото" : "Дополнительное фото"}
-              >
-                <motion.div
-                  className="relative h-full w-full"
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 18 }}
+              return (
+                <button
+                  key={image.id}
+                  onClick={() => setActiveId(image.id)}
+                  className={`relative h-14 w-14 shrink-0 rounded-xl overflow-hidden transition-all duration-300 ${
+                    isActive
+                      ? "ring-2 ring-white scale-110 shadow-lg z-10"
+                      : "opacity-70 hover:opacity-100 scale-100"
+                  }`}
                 >
                   <Image
                     src={image.url}
-                    alt={name}
                     fill
+                    className="object-cover"
+                    alt=""
                     unoptimized
-                    className="object-cover object-[center_20%]"
-                    sizes="160px"
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-black/10 opacity-0 transition group-hover:opacity-100" />
-                </motion.div>
-              </button>
-            );
-          })}
-        </div>
-      )}
+
+                  {isLastVisible && (
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center">
+                      <span className="text-white text-xs font-black tracking-tighter">
+                        +{sortedImages.length - 4}
+                      </span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
-
