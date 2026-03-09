@@ -11,13 +11,13 @@ import type {
 
 export const animalsApi = {
   getAll: (params?: AnimalsQueryParams) =>
-    http.request<AnimalsResponse>(`/api/animals${toSearchString(params)}`),
+    http.request<AnimalsResponse>(`/animals${toSearchString(params)}`),
 
-  getSpecies: () => http.request<SpeciesResponse[]>("/api/animals/species"),
+  getSpecies: () => http.request<SpeciesResponse[]>("/animals/species"),
 
   getById: async (id: string): Promise<AnimalWithRelations | null> => {
     try {
-      return await http.request<AnimalWithRelations>(`/api/animals/${id}`);
+      return await http.request<AnimalWithRelations>(`/animals/${id}`);
     } catch (error) {
       console.warn(`Animal with id ${id} not found or request failed ${error}`);
       return null;
@@ -25,19 +25,19 @@ export const animalsApi = {
   },
 
   create: (data: CreateAnimalData) =>
-    http.request<AnimalWithRelations>("/api/animals", {
+    http.request<AnimalWithRelations>("/animals", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   update: (id: string, data: UpdateAnimalData) =>
-    http.request<AnimalWithRelations>(`/api/animals/${id}`, {
+    http.request<AnimalWithRelations>(`/animals/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
 
   delete: (id: string) =>
-    http.request<void>(`/api/animals/${id}`, {
+    http.request<void>(`/animals/${id}`, {
       method: "DELETE",
     }),
 };
