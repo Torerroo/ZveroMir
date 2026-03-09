@@ -50,6 +50,8 @@ export function AnimalGallery({ name, images }: Props) {
               className="object-cover"
               alt={name}
               unoptimized
+              priority
+              loading="eager"
             />
           </motion.div>
         </AnimatePresence>
@@ -75,7 +77,7 @@ export function AnimalGallery({ name, images }: Props) {
                   <Image
                     src={image.url}
                     fill
-                    className="object-cover"
+                    className="object-cover cursor-pointer"
                     alt=""
                     unoptimized
                   />

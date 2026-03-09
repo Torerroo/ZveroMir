@@ -12,6 +12,7 @@ import {
   Maximize2,
 } from "lucide-react";
 import type { AnimalWithRelations } from "@/types/animals";
+import { LocationMap } from "@/components/maps/LocationMap";
 
 export function AnimalDetailClient({
   animal,
@@ -115,21 +116,13 @@ export function AnimalDetailClient({
       </div>
 
       <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 1 }}
-        className="mt-24  rounded-[2.5rem] md:rounded-[4rem] border border-[#eaddd0] p-10 md:p-24 text-center bg-white/40 backdrop-blur-md"
+        transition={{ duration: 0.8 }}
+        className="mt-16 w-full rounded-[3.5rem] md:rounded-[4.5rem] border border-[#eaddd0] overflow-hidden bg-white/40 backdrop-blur-md"
       >
-        <div className="max-w-2xl mx-auto space-y-8">
-          <div className="w-14 h-14 md:w-16 md:h-16 bg-[#7a4f2a]/5 rounded-full flex items-center justify-center mx-auto">
-            <MapPin className="text-[#7a4f2a]/30" size={32} />
-          </div>
-          <p className="text-[#7a4f2a]/70 text-[16px] md:text-[18px] font-medium leading-relaxed">
-            Здесь позже можно будет добавить карту Яндекс с выбором адреса и
-            оформлением доставки питомца. Блок уже вписан в композицию страницы.
-          </p>
-        </div>
+        <LocationMap />
       </motion.section>
     </main>
   );
