@@ -1,0 +1,46 @@
+version: "3"
+
+vars:
+  USER: your_user
+  HOST: your_server_ip
+  PATH: /var/www/my-project
+
+tasks:
+  backend:
+    desc: Запуск бэкенда (dev)
+    dir: backend
+    cmds:
+      - npm run dev
+
+  frontend:
+    desc: Запуск фронтенда (dev)
+    dir: frontend
+    cmds:
+      - npm run dev
+
+  dev:
+    desc: Запустить всё для разработки (параллельно)
+    deps: [backend, frontend]
+
+  install:
+    desc: Установить зависимости везде
+    cmds:
+      - cd backend && npm install
+      - cd frontend && npm install
+
+  deploy-frontend:
+    desc: Сборка и деплой фронтенда
+    cmds:
+      - cd frontend && npm run build
+      - rsync -avz --delete frontend/dist/ {{.USER}}@{{.HOST}}:{{.PATH}}/frontend/dist/
+      - ssh {{.USER}}@{{.HOST}} "nginx -s reload"
+
+  deploy-backend:
+    desc: Деплой бэкенда
+    cmds:
+      - rsync -avz --exclude 'node_modules' --exclude '.git' ./backend/ {{.USER}}@{{.HOST}}:{{.PATH}}/backend
+      - ssh {{.USER}}@{{.HOST}} "cd {{.PATH}}/backend && npm install --production && pm2 restart my-api || pm2 start index.js --name my-api"
+
+  deploy-all:
+    desc: Полный деплой
+    deps: [deploy-frontend, deploy-backend]
