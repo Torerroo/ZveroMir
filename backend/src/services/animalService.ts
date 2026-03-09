@@ -8,8 +8,6 @@ import { notFoundError } from "../utils/errors";
 import { AnimalWithRelations } from "../types/animalType";
 
 class AnimalService {
-  private readonly baseUrl = process.env.BASE_URL || "http://localhost:8080";
-
   async getAll(filters: AnimalQuery = {}) {
     const result = await animalRepository.findAll(filters);
     result.animals.forEach((animal) => this.formatImageUrls(animal));
@@ -28,7 +26,7 @@ class AnimalService {
     const category = animalRepository.findCategoryByName(data.category);
     const species = animalRepository.findSpeciesByNameAndCategory(
       data.species,
-      category?.id
+      category?.id,
     );
 
     if (!category || !species) throw notFoundError("Категория или Вид");
@@ -59,7 +57,7 @@ class AnimalService {
     const category = animalRepository.findCategoryByName(data.category);
     const species = animalRepository.findSpeciesByNameAndCategory(
       data.species,
-      category?.id
+      category?.id,
     );
 
     if (!category || !species) throw notFoundError("Категория или Вид");
@@ -102,7 +100,7 @@ class AnimalService {
   private formatImageUrls(animal: AnimalWithRelations): void {
     animal.images.forEach((img) => {
       const cleanPath = img.url.startsWith("/") ? img.url : `/${img.url}`;
-      img.url = `${this.baseUrl}/static${cleanPath}`;
+      img.url = `/static${cleanPath}`;
     });
   }
 }

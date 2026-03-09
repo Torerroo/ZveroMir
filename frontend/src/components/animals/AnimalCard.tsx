@@ -7,6 +7,8 @@ type Props = {
   animal: AnimalWithRelations;
 };
 
+const staticBase = process.env.NEXT_PUBLIC_STATIC_URL;
+
 export function AnimalCard({ animal }: Props) {
   const mainImageUrl =
     animal.images.find((img) => img.isMain)?.url || animal.images[0]?.url;
@@ -15,18 +17,18 @@ export function AnimalCard({ animal }: Props) {
     animal.species === "Кот"
       ? "😺"
       : animal.species === "Собака"
-      ? "🐶"
-      : animal.species === "Попугай"
-      ? "🦜"
-      : animal.species === "Черепаха"
-      ? "🐢"
-      : animal.species === "Игуана"
-      ? "🦎"
-      : animal.species === "Лемур"
-      ? "🐒"
-      : animal.species === "Змея"
-      ? "🐍"
-      : "🐾";
+        ? "🐶"
+        : animal.species === "Попугай"
+          ? "🦜"
+          : animal.species === "Черепаха"
+            ? "🐢"
+            : animal.species === "Игуана"
+              ? "🦎"
+              : animal.species === "Лемур"
+                ? "🐒"
+                : animal.species === "Змея"
+                  ? "🐍"
+                  : "🐾";
 
   const ageText =
     animal.age !== null && animal.age !== undefined
@@ -44,8 +46,8 @@ export function AnimalCard({ animal }: Props) {
     animal.size === "Маленький"
       ? "bg-emerald-100 text-emerald-700 border-emerald-200"
       : animal.size === "Средний"
-      ? "bg-amber-100 text-amber-700 border-amber-200"
-      : "bg-orange-100 text-orange-700 border-orange-200";
+        ? "bg-amber-100 text-amber-700 border-amber-200"
+        : "bg-orange-100 text-orange-700 border-orange-200";
 
   return (
     <Link
@@ -57,7 +59,7 @@ export function AnimalCard({ animal }: Props) {
         <div className="relative aspect-4/3 w-full overflow-hidden">
           {mainImageUrl && (
             <Image
-              src={mainImageUrl}
+              src={`${staticBase}${mainImageUrl}`}
               alt={animal.name}
               fill
               unoptimized

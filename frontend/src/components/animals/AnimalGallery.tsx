@@ -11,6 +11,8 @@ type Props = {
   images: AnimalImage[];
 };
 
+const staticBase = process.env.NEXT_PUBLIC_STATIC_URL;
+
 export function AnimalGallery({ name, images }: Props) {
   if (!images || images.length === 0) {
     return null;
@@ -45,7 +47,7 @@ export function AnimalGallery({ name, images }: Props) {
             className="h-full w-full"
           >
             <Image
-              src={activeImage.url}
+              src={`${staticBase}${activeImage.url}`}
               fill
               className="object-cover"
               alt={name}
@@ -75,7 +77,7 @@ export function AnimalGallery({ name, images }: Props) {
                   }`}
                 >
                   <Image
-                    src={image.url}
+                    src={`${staticBase}${image.url}`}
                     fill
                     className="object-cover cursor-pointer"
                     alt=""
