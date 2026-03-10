@@ -25,7 +25,11 @@ function ChangeView({ center }: { center: [number, number] }) {
   return null;
 }
 
-export function LocationMap() {
+export function LocationMap({
+  onAddressSelect,
+}: {
+  onAddressSelect: (addr: string) => void;
+}) {
   const [isMounted, setIsMounted] = useState(false);
   const [Components, setComponents] = useState<any>(null);
   const [leafletLib, setLeafletLib] = useState<any>(null);
@@ -73,7 +77,18 @@ export function LocationMap() {
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=ru`,
       );
       const data = await response.json();
-      console.log("📍 Адрес:", data.display_name);
+
+      const { road, house_number, city, town, village, hamlet } = data.address;
+
+      const displayCity = city || town || village || hamlet || "";
+      const displayStreet = road ? road : "";
+      const displayHouse = house_number ? house_number : "";
+
+      const cleanAddress = [displayCity, displayStreet, displayHouse]
+        .filter(Boolean)
+        .join(", ");
+
+      onAddressSelect(cleanAddress || data.display_name);
     } catch (e) {
       console.error(e);
     }

@@ -49,7 +49,7 @@ export function AnimalGallery({ name, images }: Props) {
             <Image
               src={`${staticBase}${activeImage.url}`}
               fill
-              className="object-cover"
+              className="object-cover object-[center_20%]"
               alt={name}
               unoptimized
               priority
