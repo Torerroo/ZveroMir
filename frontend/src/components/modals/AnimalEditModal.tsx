@@ -18,6 +18,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import type { AnimalWithRelations } from "@/types/animals";
 import { api } from "@/api";
 import { AnimalEditData, animalEditSchema } from "@/api/animals/animals.schema";
+import { appToast } from "../ui/AppToast";
 
 const staticBase = process.env.NEXT_PUBLIC_STATIC_URL || "";
 
@@ -124,8 +125,15 @@ export function AnimalEditModal({ animal, onUpdate }: Props) {
     try {
       const response = await api.animals.update(String(animal.id), formData);
       onUpdate(response);
+      appToast.success(`Изменения для ${response.name} сохранены`);
       handleClose();
-    } catch (error: any) {}
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Не удалось сохранить изменения";
+      appToast.error(message);
+    }
   };
 
   const labelClass =

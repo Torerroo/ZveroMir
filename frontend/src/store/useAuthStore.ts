@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { User } from "../types/user";
 import { LoginData, RegisterData } from "../api/auth/auth.schema";
 import { api } from "@/api";
+import { appToast } from "@/components/ui/AppToast";
 
 interface AuthState {
   user: User | null;
@@ -23,8 +24,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const res = await api.auth.login(data);
       set({ user: res.user, isAuth: true });
+      appToast.success(`Рады видеть вас, ${res.user.fullName || "друг"}!`);
     } catch (error) {
       set({ user: null, isAuth: false });
+      appToast.error("Не удалось войти");
       throw error;
     }
   },
@@ -43,8 +46,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await api.auth.logout();
       set({ user: null, isAuth: false });
+      appToast.success("До встречи! Возвращайтесь в ЗвероМир.");
     } catch (error) {
+      set({ user: null, isAuth: false });
       console.error("Logout failed", error);
+      appToast.error("Не удалось завершить сессию");
     }
   },
 

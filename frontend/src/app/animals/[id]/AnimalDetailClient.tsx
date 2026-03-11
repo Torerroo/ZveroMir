@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { AnimalWithRelations } from "@/types/animals";
 import { LocationMap } from "@/components/maps/LocationMap";
+import { appToast } from "@/components/ui/AppToast";
 
 export function AnimalDetailClient({
   animal: initialAnimal,
@@ -200,7 +201,14 @@ export function AnimalDetailClient({
                       вас время
                     </p>
 
-                    <button className="cursor-pointer group relative w-full md:w-auto min-w-[260px] bg-[#7a4f2a] hover:bg-[#5d3c20] text-white py-6 px-10 rounded-4xl transition-all shadow-xl shadow-[#7a4f2a]/20 active:scale-95 overflow-hidden">
+                    <button
+                      onClick={() =>
+                        appToast.success(
+                          `Заявка отправлена. Мы свяжемся с вами в ближайшее время.`,
+                        )
+                      }
+                      className="cursor-pointer group relative w-full md:w-auto min-w-[260px] bg-[#7a4f2a] hover:bg-[#5d3c20] text-white py-6 px-10 rounded-4xl transition-all shadow-xl shadow-[#7a4f2a]/20 active:scale-95 overflow-hidden"
+                    >
                       <div className="relative z-10 flex items-center justify-center gap-3">
                         <span className="text-[14px] font-black uppercase tracking-[0.2em]">
                           Отправить заявку
