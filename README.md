@@ -34,7 +34,7 @@ npm install
 ## 🎯 План развития
 
 - [x] Попрактиковаться с express.js
-- [ ] Вспомнить next.js
+- [x] Вспомнить next.js
 - [x] Сделать деплой
 - [ ] Написать тесты: backend (Jest + Supertest), frontend (Jest + React Testing Library)
 - [ ] Переписать sqlite на PostgreSQL + Prisma
