@@ -33,7 +33,7 @@ class AnimalRepository {
       .prepare(
         `SELECT id, animal_id, file_path, is_main 
          FROM animal_images 
-         WHERE animal_id IN (${placeholders}) AND deleted_at IS NULL`
+         WHERE animal_id IN (${placeholders}) AND deleted_at IS NULL`,
       )
       .all(...animalIds) as AnimalImageRow[];
 
@@ -72,15 +72,14 @@ class AnimalRepository {
     if (filters.q) {
       params.searchTerm = `%${filters.q.trim()}%`;
       conditions.push(
-        "(a.name COLLATE NOCASE LIKE @searchTerm OR a.breed COLLATE NOCASE LIKE @searchTerm)"
+        "(a.name COLLATE NOCASE LIKE @searchTerm OR a.breed COLLATE NOCASE LIKE @searchTerm)",
       );
     }
 
     const whereClause = `WHERE ${conditions.join(" AND ")}`;
-
     const totalResult = db
       .prepare(
-        `SELECT COUNT(*) as total FROM animals a JOIN species s ON a.species_id = s.id ${whereClause}`
+        `SELECT COUNT(*) as total FROM animals a JOIN species s ON a.species_id = s.id ${whereClause}`,
       )
       .get(params) as { total: number };
 
@@ -153,6 +152,45 @@ class AnimalRepository {
     return db.prepare(query).run({ ...data, id }).changes > 0;
   }
 
+  syncImages(animalId: number, keepPaths: string[]) {
+    if (keepPaths.length > 0) {
+      const placeholders = keepPaths.map(() => "?").join(",");
+      const query = `
+				UPDATE animal_images 
+				SET deleted_at = CURRENT_TIMESTAMP 
+				WHERE animal_id = ? 
+					AND LTRIM(file_path, '/') NOT IN (${placeholders}) 
+					AND deleted_at IS NULL
+			`;
+      db.prepare(query).run(animalId, ...keepPaths);
+    } else {
+      const query = `UPDATE animal_images SET deleted_at = CURRENT_TIMESTAMP WHERE animal_id = ? AND deleted_at IS NULL`;
+      db.prepare(query).run(animalId);
+    }
+  }
+
+  addImages(animalId: number, filePaths: string[]) {
+    const stmt = db.prepare(`
+			INSERT INTO animal_images (animal_id, file_path, is_main) 
+			VALUES (?, ?, 
+				CASE 
+					WHEN NOT EXISTS (
+						SELECT 1 FROM animal_images 
+						WHERE animal_id = ? AND is_main = 1 AND deleted_at IS NULL
+					) THEN 1 
+					ELSE 0 
+				END
+			)
+		`);
+
+    const insertMany = db.transaction((paths: string[]) => {
+      for (const path of paths) {
+        stmt.run(animalId, path, animalId);
+      }
+    });
+    insertMany(filePaths);
+  }
+
   findCategoryByName(name: string) {
     return db
       .prepare("SELECT id, name FROM categories WHERE name = ?")
@@ -162,43 +200,15 @@ class AnimalRepository {
   findSpeciesByNameAndCategory(name: string, categoryId: number) {
     return db
       .prepare(
-        "SELECT id, name FROM species WHERE name = ? AND category_id = ?"
+        "SELECT id, name FROM species WHERE name = ? AND category_id = ?",
       )
       .get(name, categoryId) as any;
-  }
-
-  addImages(animalId: number, filePaths: string[]) {
-    const stmt = db.prepare(`
-			INSERT INTO animal_images (animal_id, file_path, is_main) 
-			VALUES (
-				?, 
-				?, 
-				(CASE 
-					WHEN ? = 0 AND NOT EXISTS (
-						SELECT 1 FROM animal_images WHERE animal_id = ? AND is_main = 1 AND deleted_at IS NULL
-					) THEN 1 
-					ELSE 0 
-				END)
-			)
-		`);
-
-    const insertMany = db.transaction((paths: string[]) => {
-      paths.forEach((path, index) => {
-        stmt.run(animalId, path, index, animalId);
-      });
-    });
-
-    insertMany(filePaths);
   }
 
   getAllSpecies() {
     return db
       .prepare(
-        `
-      SELECT s.id, s.name, s.category_id as categoryId, c.name as categoryName 
-      FROM species s
-      JOIN categories c ON s.category_id = c.id
-    `
+        "SELECT s.id, s.name, s.category_id as categoryId, c.name as categoryName FROM species s JOIN categories c ON s.category_id = c.id",
       )
       .all() as any[];
   }
@@ -207,16 +217,16 @@ class AnimalRepository {
     return (
       db
         .prepare(
-          "UPDATE animals SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?"
+          "UPDATE animals SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?",
         )
         .run(id).changes > 0
     );
   }
 
   deleteImagesByAnimalId(animalId: number) {
-    const query =
-      "UPDATE animal_images SET deleted_at = CURRENT_TIMESTAMP WHERE animal_id = ?";
-    db.prepare(query).run(animalId);
+    db.prepare(
+      "UPDATE animal_images SET deleted_at = CURRENT_TIMESTAMP WHERE animal_id = ? AND deleted_at IS NULL",
+    ).run(animalId);
   }
 }
 

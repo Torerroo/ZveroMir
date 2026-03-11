@@ -6,6 +6,7 @@ import { Pencil, X, Trash2, Camera, Check, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { AnimalWithRelations } from "@/types/animals";
+import { api } from "@/api";
 
 const staticBase = process.env.NEXT_PUBLIC_STATIC_URL || "";
 
@@ -13,13 +14,15 @@ type ImageData = {
   id: string | number;
   url: string;
   isNew: boolean;
+  file?: File;
 };
 
 type Props = {
   animal: AnimalWithRelations;
+  onUpdate: (updated: AnimalWithRelations) => void;
 };
 
-export function AnimalEditModal({ animal }: Props) {
+export function AnimalEditModal({ animal, onUpdate }: Props) {
   const [open, setOpen] = useState(false);
   const [images, setImages] = useState<ImageData[]>(
     animal.images.map((img) => ({ id: img.id, url: img.url, isNew: false })),
@@ -50,6 +53,7 @@ export function AnimalEditModal({ animal }: Props) {
         id: `new-${Math.random().toString(36).substr(2, 9)}`,
         url: URL.createObjectURL(file),
         isNew: true,
+        file: file,
       }));
       setImages((prev) => [...prev, ...newImages]);
     }
@@ -59,17 +63,28 @@ export function AnimalEditModal({ animal }: Props) {
     setImages((prev) => prev.filter((img) => img.id !== id));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const data = Object.fromEntries(formData.entries());
 
-    console.log("Animal Data Updated:", {
-      ...data,
-      images: images,
+    if (!formData.has("category")) formData.append("category", animal.category);
+    if (!formData.has("species")) formData.append("species", animal.species);
+
+    images.forEach((img) => {
+      if (img.isNew && img.file) {
+        formData.append("images", img.file);
+      } else if (!img.isNew) {
+        formData.append("existingImages", img.url);
+      }
     });
 
-    handleClose();
+    try {
+      const response = await api.animals.update(String(animal.id), formData);
+      onUpdate(response);
+      handleClose();
+    } catch (error) {
+      console.error("❌ Ошибка при сохранении:", error);
+    }
   };
 
   const labelClass =

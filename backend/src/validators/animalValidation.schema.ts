@@ -14,16 +14,13 @@ const baseAnimalQuerySchema = z.object({
 export const animalQuerySchema = z.preprocess((raw) => {
   if (raw && typeof raw === "object") {
     const query = { ...(raw as Record<string, unknown>) };
-
     for (const [key, value] of Object.entries(query)) {
       if (typeof value === "string" && value.trim() === "") {
         delete query[key];
       }
     }
-
     return query;
   }
-
   return raw;
 }, baseAnimalQuerySchema);
 
@@ -41,35 +38,42 @@ const baseAnimalFields = {
     .string()
     .min(1, "Порода обязательна")
     .max(100, "Порода слишком длинная"),
-  age: z
+  age: z.coerce
     .number()
     .int()
     .min(0, "Возраст не может быть отрицательным")
     .max(50, "Возраст слишком большой")
-    .optional(),
+    .optional()
+    .nullable(),
   gender: z.enum(["Мальчик", "Девочка", "Неизвестно"]),
   size: z.enum(["Маленький", "Средний", "Большой"]),
   description: z
     .string()
     .min(10, "Описание должно быть минимум 10 символов")
     .max(1000, "Описание слишком длинное")
-    .optional(),
+    .optional()
+    .nullable(),
   category: z.string().min(1, "Категория обязательна"),
   species: z.string().min(1, "Вид животного обязателен"),
-  images: z.array(z.string()).optional(),
 };
 
 export const animalCreateSchema = z.object({
-  name: z.string().min(1, "Имя обязательно").max(100),
-  category: z.string().min(1, "Категория обязательна"),
-  species: z.string().min(1, "Вид животного обязателен"),
-  breed: z.string().min(1, "Порода обязательна"),
-  age: z.coerce.number().int().min(0).max(50).optional().nullable(),
-  gender: z.enum(["Мальчик", "Девочка", "Неизвестно"]),
-  size: z.enum(["Маленький", "Средний", "Большой"]),
-  description: z.string().min(10).max(1000).optional(),
+  ...baseAnimalFields,
+  images: z.array(z.string()).optional(),
 });
 
 export type AnimalCreate = z.infer<typeof animalCreateSchema>;
-export const animalUpdateSchema = animalCreateSchema;
+
+export const animalUpdateSchema = z.object({
+  ...baseAnimalFields,
+  existingImages: z.preprocess((val) => {
+    const rawArray = !val ? [] : Array.isArray(val) ? val : [val];
+    return rawArray.map((path: any) =>
+      String(path)
+        .replace(/^\/?static\//, "")
+        .replace(/^\/+/, ""),
+    );
+  }, z.array(z.string()).optional()),
+});
+
 export type AnimalUpdate = z.infer<typeof animalUpdateSchema>;

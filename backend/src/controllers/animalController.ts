@@ -13,7 +13,7 @@ class AnimalController {
   getAnimals = async (
     req: Request,
     res: Response<AnimalsResponse>,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const parsedQuery = animalQuerySchema.safeParse(req.query);
@@ -42,7 +42,7 @@ class AnimalController {
   getAnimalById = async (
     req: Request<{ id: string }>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const parsedParams = animalIdParamSchema.safeParse(req.params);
@@ -66,7 +66,7 @@ class AnimalController {
 
       const createdAnimal = await animalService.create(
         parsedData.data,
-        imagePaths
+        imagePaths,
       );
       res.status(201).json(createdAnimal);
     } catch (error) {
@@ -77,7 +77,7 @@ class AnimalController {
   updateAnimal = async (
     req: Request<{ id: string }>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const parsedParams = animalIdParamSchema.safeParse(req.params);
@@ -88,13 +88,12 @@ class AnimalController {
       if (!parsedData.success) return next(validationError(parsedData.error));
 
       const files = req.files as Express.Multer.File[];
-      const imagePaths =
-        files?.map((file) => `/animals/${file.filename}`) || [];
+      const imagePaths = files?.map((file) => `animals/${file.filename}`) || [];
 
       const updatedAnimal = await animalService.update(
         parsedParams.data.id,
         parsedData.data,
-        imagePaths
+        imagePaths,
       );
       res.json(updatedAnimal);
     } catch (error) {
@@ -105,7 +104,7 @@ class AnimalController {
   deleteAnimal = async (
     req: Request<{ id: string }>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const parsedParams = animalIdParamSchema.safeParse(req.params);

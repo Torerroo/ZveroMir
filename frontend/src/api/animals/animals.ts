@@ -30,10 +30,10 @@ export const animalsApi = {
       body: JSON.stringify(data),
     }),
 
-  update: (id: string, data: UpdateAnimalData) =>
+  update: (id: string, data: FormData) =>
     http.request<AnimalWithRelations>(`/animals/${id}`, {
       method: "PUT",
-      body: JSON.stringify(data),
+      body: data,
     }),
 
   delete: (id: string) =>

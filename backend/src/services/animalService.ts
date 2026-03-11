@@ -50,8 +50,8 @@ class AnimalService {
     return this.getById(animalId);
   }
 
-  async update(id: number, data: AnimalUpdate, imagePaths: string[] = []) {
-    const existingAnimal = animalRepository.findById(id);
+  async update(id: number, data: AnimalUpdate, newImagePaths: string[] = []) {
+    const existingAnimal = await animalRepository.findById(id);
     if (!existingAnimal) throw notFoundError("Животное");
 
     const category = animalRepository.findCategoryByName(data.category);
@@ -59,25 +59,29 @@ class AnimalService {
       data.species,
       category?.id,
     );
-
     if (!category || !species) throw notFoundError("Категория или Вид");
 
-    const updateData = {
+    animalRepository.update(id, {
       name: data.name,
       breed: data.breed,
-      age: data.age ?? null,
+      age: data.age,
       gender: data.gender,
       size: data.size,
-      status: existingAnimal.status,
-      description: data.description ?? null,
+      description: data.description,
       categoryId: category.id,
       speciesId: species.id,
-    };
+      status: existingAnimal.status,
+    });
 
-    animalRepository.update(id, updateData);
+    const keepImages = (data.existingImages || []).map((path) =>
+      path.replace(/^\/?static\//, "").replace(/^\/+/, ""),
+    );
 
-    if (imagePaths.length > 0) {
-      animalRepository.addImages(id, imagePaths);
+    animalRepository.syncImages(id, keepImages);
+
+    if (newImagePaths.length > 0) {
+      const cleanNewPaths = newImagePaths.map((p) => p.replace(/^\/+/, ""));
+      animalRepository.addImages(id, cleanNewPaths);
     }
 
     return this.getById(id);
@@ -91,16 +95,14 @@ class AnimalService {
     if (!animalRepository.findById(id)) {
       throw notFoundError("Животное");
     }
-
     animalRepository.deleteImagesByAnimalId(id);
-
     animalRepository.delete(id);
   }
 
   private formatImageUrls(animal: AnimalWithRelations): void {
     animal.images.forEach((img) => {
-      const cleanPath = img.url.startsWith("/") ? img.url : `/${img.url}`;
-      img.url = `/static${cleanPath}`;
+      const cleanPath = img.url.replace(/^\/+/, "");
+      img.url = `/static/${cleanPath}`;
     });
   }
 }
