@@ -5,7 +5,6 @@ import type {
   AnimalsResponse,
   SpeciesResponse,
   CreateAnimalData,
-  UpdateAnimalData,
   AnimalsQueryParams,
 } from "./animals.schema";
 
