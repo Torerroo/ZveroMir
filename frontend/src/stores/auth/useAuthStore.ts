@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { User } from "../types/user";
-import { LoginData, RegisterData } from "../api/auth/auth.schema";
+import { User } from "../../types/user";
+import { LoginData, RegisterData } from "../../api/auth/auth.schema";
 import { api } from "@/api";
 import { appToast } from "@/components/ui/AppToast";
 

@@ -6,7 +6,7 @@ import { X, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginData } from "@/api/auth/auth.schema";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 
 export function AuthModal({
   isOpen,

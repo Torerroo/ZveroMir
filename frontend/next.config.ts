@@ -5,6 +5,7 @@ const staticHostname = new URL(staticUrl).hostname;
 
 const nextConfig: NextConfig = {
   images: {
+    qualities: [75, 100],
     remotePatterns: [
       {
         protocol: staticUrl.startsWith("https") ? "https" : "http",

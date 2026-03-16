@@ -4,7 +4,7 @@ import { useState } from "react";
 import { User as UserIcon, Menu, X, LogOut, Loader2 } from "lucide-react";
 import { AuthModal } from "../modals/AuthModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

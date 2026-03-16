@@ -14,7 +14,7 @@ import {
 import Image from "next/image";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "@/stores/auth/useAuthStore";
 import type { AnimalWithRelations } from "@/types/animals";
 import { api } from "@/api";
 import { AnimalEditData, animalEditSchema } from "@/api/animals/animals.schema";
