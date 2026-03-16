@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimalGallery } from "@/components/animals/AnimalGallery";
-import { AnimalEditModal } from "@/components/modals/AnimalEditModal";
+import { AnimalEditModal } from "@/components/modals/AnimalEditModal/AnimalEditModal";
 import {
   MapPin,
   Mars,

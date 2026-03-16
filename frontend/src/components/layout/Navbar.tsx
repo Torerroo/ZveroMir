@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { User as UserIcon, Menu, X, LogOut, Loader2 } from "lucide-react";
-import { AuthModal } from "../modals/AuthModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AuthModal } from "../modals/AuthModal/AuthModal";
 
 interface NavbarProps {
   transparent?: boolean;

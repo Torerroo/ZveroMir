@@ -18,7 +18,7 @@ import { useAuthStore } from "@/stores/auth/useAuthStore";
 import type { AnimalWithRelations } from "@/types/animals";
 import { api } from "@/api";
 import { AnimalEditData, animalEditSchema } from "@/api/animals/animals.schema";
-import { appToast } from "../ui/AppToast";
+import { appToast } from "../../ui/AppToast";
 
 const staticBase = process.env.NEXT_PUBLIC_STATIC_URL || "";
 
