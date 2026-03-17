@@ -21,7 +21,6 @@ export async function connectDB(): Promise<boolean> {
 export async function runMigrations(): Promise<void> {
   console.log("🔍 Проверяем миграции...");
 
-  // 1. Создаем техническую таблицу ПЕРЕД всем остальным
   db.exec(`
     CREATE TABLE IF NOT EXISTS migrations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,12 +47,11 @@ export async function runMigrations(): Promise<void> {
         const filePath = path.join(migrationsDir, file);
         const sql = await fs.readFile(filePath, "utf8");
 
-        // Используем транзакцию, чтобы миграция и запись о ней были атомарны
         const applyMigration = db.transaction(
           (content: string, name: string) => {
             db.exec(content);
             db.prepare("INSERT INTO migrations (name) VALUES (?)").run(name);
-          }
+          },
         );
 
         applyMigration(sql, migrationName);
@@ -67,19 +65,17 @@ export async function runMigrations(): Promise<void> {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("❌ Ошибка миграций:", message);
-    throw error; // Блокируем запуск сервера, если миграции битые
+    throw error;
   }
 }
 
 export async function seedData(): Promise<void> {
-  // Проверяем окружение
   if (process.env.NODE_ENV !== "DEV") {
     console.log("⏭️ Сиды пропущены (не DEV окружение)");
     return;
   }
 
   try {
-    // Проверка на наличие данных, чтобы не дублировать
     const existing = db
       .prepare("SELECT COUNT(*) as count FROM animals")
       .get() as { count: number };
@@ -92,12 +88,10 @@ export async function seedData(): Promise<void> {
     const seedPath = path.join(process.cwd(), "sql", "seeds", "dev_seed.sql");
     const sql = await fs.readFile(seedPath, "utf8");
 
-    // Выполняем seed целиком
     db.exec(sql);
     console.log("✅ Тестовые данные успешно загружены");
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("❌ Ошибка сидов:", message);
-    // Сиды не критичны для работы сервера, поэтому не выбрасываем throw, если не хотим
   }
 }

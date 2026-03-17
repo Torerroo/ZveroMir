@@ -32,7 +32,7 @@ tasks:
     desc: Прямой деплой фронтенда
     cmds:
       - cd frontend && npm run build
-      - powershell -Command "Compress-Archive -Path ./frontend/.next, ./frontend/package.json, ./frontend/public, ./frontend/next.config.ts -DestinationPath frontend.zip -Force"
+      - powershell -Command "Compress-Archive -Path ./frontend/.next, ./frontend/package.json, ./frontend/package-lock.json, ./frontend/public, ./frontend/next.config.ts -DestinationPath frontend.zip -Force"
       - scp frontend.zip {{.USER}}@{{.HOST}}:{{.PATH}}/
       - |
         ssh {{.USER}}@{{.HOST}} "
@@ -42,7 +42,7 @@ tasks:
           find . -maxdepth 1 ! -name '.env' ! -name 'node_modules' ! -name '.' -exec rm -rf {} +
           unzip -qo ../frontend.zip -d .
           rm ../frontend.zip
-          npm install --production
+          npm ci --production
           pm2 delete zveromir-front || true
           pm2 start npm --name 'zveromir-front' -- start -- -p 3000
           pm2 save
@@ -52,28 +52,23 @@ tasks:
   deploy-backend:
     desc: Полный деплой бэкенда
     cmds:
-      - powershell -Command "if (Test-Path deploy_temp) { Remove-Item -Recurse -Force deploy_temp }"
+      - cd backend && npm run build
       - powershell -Command "if (Test-Path backend.zip) { Remove-Item backend.zip }"
-      - powershell -Command "New-Item -ItemType Directory -Path deploy_temp"
-      - powershell -Command "Copy-Item -Path ./backend/* -Destination deploy_temp -Recurse -Exclude 'node_modules','.git','*.log','backend.zip','zveromir.db','.env'"
-      - powershell -Command "Compress-Archive -Path deploy_temp/* -DestinationPath backend.zip"
+      - powershell -Command "Compress-Archive -Path ./backend/dist, ./backend/sql, ./backend/package.json, ./backend/package-lock.json -DestinationPath backend.zip -Force"
       - scp backend.zip {{.USER}}@{{.HOST}}:{{.PATH}}/
       - |
         ssh {{.USER}}@{{.HOST}} "
           export NVM_DIR=\"\$HOME/.nvm\"
           [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"
           mkdir -p {{.PATH}}/backend && cd {{.PATH}}/backend
-          find . -maxdepth 1 ! -name '.env' ! -name 'zveromir.db' ! -name 'node_modules' ! -name '.' -exec rm -rf {} +
+          find . -maxdepth 1 ! -name '.env' ! -name 'zveromir.db' ! -name 'uploads' ! -name 'sql' ! -name 'node_modules' ! -name '.' -exec rm -rf {} +
           unzip -qo ../backend.zip -d .
           rm ../backend.zip
-          node -e \"let pkg=require('./package.json'); pkg.type='module'; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2))\"
-          npm install
-          printf \"module.exports = { apps: [{ name: 'zveromir-api', script: 'node', args: '--loader ts-node/esm --experimental-specifier-resolution=node src/index.ts' }] }\" > ecosystem.config.cjs
+          npm ci --production
           pm2 delete zveromir-api || true
-          pm2 start ecosystem.config.cjs
+          pm2 start dist/index.js --name 'zveromir-api'
           pm2 save
         "
-      - powershell -Command "Remove-Item -Recurse -Force deploy_temp"
       - powershell -Command "if (Test-Path backend.zip) { Remove-Item backend.zip }"
 
   deploy-all:
