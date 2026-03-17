@@ -27,7 +27,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
+    "GET, POST, PUT, DELETE, OPTIONS",
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -45,6 +45,8 @@ app.use("/static", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api", apiRouter);
 
 app.use(errorHandler);
+
+export { app };
 
 const start = async () => {
   try {
@@ -64,4 +66,6 @@ const start = async () => {
   }
 };
 
-start();
+if (require.main === module) {
+  start();
+}
