@@ -3,3 +3,4 @@ dist/
 zveromir.db
 zveromir.db-*
 .env
+/src/generated/prisma

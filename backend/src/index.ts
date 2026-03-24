@@ -5,6 +5,7 @@ import { connectDB, runMigrations, seedData } from "./db";
 import apiRouter from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
 import path from "path";
+import { connectPrisma } from "./prisma";
 
 dotenv.config({
   debug: false,
@@ -55,6 +56,7 @@ const start = async () => {
       throw new Error("Не удалось подключиться к БД");
     }
 
+    await connectPrisma();
     await runMigrations();
     await seedData();
 

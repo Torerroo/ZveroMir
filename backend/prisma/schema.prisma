@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String?  @map("full_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Category {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  species Species[]
+  animals Animal[]
+
+  @@map("categories")
+}
+
+model Species {
+  id         Int      @id @default(autoincrement())
+  name       String
+  categoryId Int      @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+  animals    Animal[]
+
+  @@unique([name, categoryId])
+  @@map("species")
+}
+
+model Animal {
+  id          Int           @id @default(autoincrement())
+  name        String
+  categoryId  Int           @map("category_id")
+  speciesId   Int           @map("species_id")
+  breed       String?
+  age         Int?
+  gender      String?       // Мальчик, Девочка, Неизвестно
+  size        String?       // Маленький, Средний, Большой
+  status      String        @default("Доступно") // Доступно, Зарезервировано, Пристроено
+  description String?
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
+  deletedAt   DateTime?     @map("deleted_at")
+  
+  category    Category      @relation(fields: [categoryId], references: [id])
+  species     Species       @relation(fields: [speciesId], references: [id])
+  images      AnimalImage[]
+
+  @@index([deletedAt])
+  @@map("animals")
+}
+
+model AnimalImage {
+  id        Int       @id @default(autoincrement())
+  animalId  Int       @map("animal_id")
+  filePath  String    @map("file_path")
+  isMain    Boolean   @default(false) @map("is_main")
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
+  
+  animal    Animal    @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  @@index([animalId])
+  @@map("animal_images")
+}
