@@ -2,3 +2,4 @@ node_modules/
 dist/
 zveromir.db
 zveromir.db-*
+.env
