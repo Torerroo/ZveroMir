@@ -1,60 +1,65 @@
-import { db } from "../db";
+import { prisma } from "../prisma";
 import { User, UserRow } from "../types/userType";
 
 function mapRowToUser(row: UserRow): User {
   return {
     id: row.id,
     email: row.email,
-    fullName: row.full_name,
-    createdAt: row.created_at,
+    fullName: row.fullName,
+    createdAt: row.createdAt.toISOString(),
   };
 }
 
 class UserRepository {
-  findByEmail(email: string): (UserRow & { password_hash: string }) | null {
-    const query = `
-      SELECT id, email, password_hash, full_name, created_at
-      FROM users
-      WHERE email = ?
-      LIMIT 1
-    `;
-
-    const row = db.prepare(query).get(email) as UserRow | undefined;
-    return row ?? null;
+  async findByEmail(email: string): Promise<UserRow | null> {
+    return prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        fullName: true,
+        createdAt: true,
+      },
+    });
   }
 
-  findById(id: number): User | null {
-    const query = `
-      SELECT id, email, password_hash, full_name, created_at
-      FROM users
-      WHERE id = ?
-      LIMIT 1
-    `;
-
-    const row = db.prepare(query).get(id) as UserRow | undefined;
+  async findById(id: number): Promise<User | null> {
+    const row: UserRow | null = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        fullName: true,
+        createdAt: true,
+      },
+    });
     if (!row) {
       return null;
     }
     return mapRowToUser(row);
   }
 
-  create(data: { email: string; passwordHash: string; fullName?: string | null }): User {
-    const query = `
-      INSERT INTO users (email, password_hash, full_name)
-      VALUES (?, ?, ?)
-    `;
-
-    const result = db
-      .prepare(query)
-      .run(data.email, data.passwordHash, data.fullName ?? null);
-
-    const id = result.lastInsertRowid as number;
-
-    const createdRow = db
-      .prepare(
-        "SELECT id, email, password_hash, full_name, created_at FROM users WHERE id = ?"
-      )
-      .get(id) as UserRow | undefined;
+  async create(data: {
+    email: string;
+    passwordHash: string;
+    fullName?: string | null;
+  }): Promise<User> {
+    const createdRow: UserRow | null = await prisma.user.create({
+      data: {
+        email: data.email,
+        passwordHash: data.passwordHash,
+        fullName: data.fullName ?? null,
+      },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        fullName: true,
+        createdAt: true,
+      },
+    });
 
     if (!createdRow) {
       throw new Error("Не удалось получить созданного пользователя");

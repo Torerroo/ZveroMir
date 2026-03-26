@@ -1,7 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import { connectDB, runMigrations, seedData } from "./db";
 import apiRouter from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
 import path from "path";
@@ -51,14 +50,10 @@ export { app };
 
 const start = async () => {
   try {
-    const connected = await connectDB();
+    const connected = await connectPrisma();
     if (!connected) {
       throw new Error("Не удалось подключиться к БД");
     }
-
-    await connectPrisma();
-    await runMigrations();
-    await seedData();
 
     app.listen(PORT, () => {
       console.log(`✅ Сервер запущен: http://localhost:${PORT}`);

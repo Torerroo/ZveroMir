@@ -59,7 +59,7 @@ class AuthController {
 
   me = async (
     req: AuthRequest,
-    res: Response<AuthResponse>,
+    res: Response,
     next: NextFunction
   ) => {
     try {
@@ -69,10 +69,10 @@ class AuthController {
             message: "Необходима аутентификация",
             code: "UNAUTHORIZED",
           },
-        } as any);
+        });
       }
 
-      const user = authService.getMe(req.userId);
+      const user = await authService.getMe(req.userId);
       res.json({ user });
     } catch (error) {
       next(error);

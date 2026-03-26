@@ -15,7 +15,7 @@ class AnimalService {
   }
 
   async getById(id: number) {
-    const animal = animalRepository.findById(id);
+    const animal = await animalRepository.findById(id);
     if (!animal) throw notFoundError("Животное");
 
     this.formatImageUrls(animal);
@@ -23,15 +23,15 @@ class AnimalService {
   }
 
   async create(data: AnimalCreate, imagePaths: string[] = []) {
-    const category = animalRepository.findCategoryByName(data.category);
-    const species = animalRepository.findSpeciesByNameAndCategory(
+    const category = await animalRepository.findCategoryByName(data.category);
+    const species = await animalRepository.findSpeciesByNameAndCategory(
       data.species,
       category?.id,
     );
 
     if (!category || !species) throw notFoundError("Категория или Вид");
 
-    const animalId = animalRepository.create({
+    const animalId = await animalRepository.create({
       name: data.name,
       breed: data.breed,
       age: data.age ?? null,
@@ -44,7 +44,7 @@ class AnimalService {
     });
 
     if (imagePaths.length > 0) {
-      animalRepository.addImages(animalId, imagePaths);
+      await animalRepository.addImages(animalId, imagePaths);
     }
 
     return this.getById(animalId);
@@ -54,14 +54,14 @@ class AnimalService {
     const existingAnimal = await animalRepository.findById(id);
     if (!existingAnimal) throw notFoundError("Животное");
 
-    const category = animalRepository.findCategoryByName(data.category);
-    const species = animalRepository.findSpeciesByNameAndCategory(
+    const category = await animalRepository.findCategoryByName(data.category);
+    const species = await animalRepository.findSpeciesByNameAndCategory(
       data.species,
       category?.id,
     );
     if (!category || !species) throw notFoundError("Категория или Вид");
 
-    animalRepository.update(id, {
+    await animalRepository.update(id, {
       name: data.name,
       breed: data.breed,
       age: data.age,
@@ -77,11 +77,11 @@ class AnimalService {
       path.replace(/^\/?static\//, "").replace(/^\/+/, ""),
     );
 
-    animalRepository.syncImages(id, keepImages);
+    await animalRepository.syncImages(id, keepImages);
 
     if (newImagePaths.length > 0) {
       const cleanNewPaths = newImagePaths.map((p) => p.replace(/^\/+/, ""));
-      animalRepository.addImages(id, cleanNewPaths);
+      await animalRepository.addImages(id, cleanNewPaths);
     }
 
     return this.getById(id);
@@ -92,11 +92,11 @@ class AnimalService {
   }
 
   async delete(id: number) {
-    if (!animalRepository.findById(id)) {
+    if (!(await animalRepository.findById(id))) {
       throw notFoundError("Животное");
     }
-    animalRepository.deleteImagesByAnimalId(id);
-    animalRepository.delete(id);
+    await animalRepository.deleteImagesByAnimalId(id);
+    await animalRepository.delete(id);
   }
 
   private formatImageUrls(animal: AnimalWithRelations): void {

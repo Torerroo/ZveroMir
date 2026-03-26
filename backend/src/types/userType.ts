@@ -8,9 +8,9 @@ export interface User {
 export interface UserRow {
   id: number;
   email: string;
-  password_hash: string;
-  full_name: string | null;
-  created_at: string;
+  passwordHash: string;
+  fullName: string | null;
+  createdAt: Date;
 }
 
 export interface AuthResponse {

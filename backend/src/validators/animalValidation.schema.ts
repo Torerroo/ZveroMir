@@ -68,7 +68,7 @@ export const animalUpdateSchema = z.object({
   ...baseAnimalFields,
   existingImages: z.preprocess((val) => {
     const rawArray = !val ? [] : Array.isArray(val) ? val : [val];
-    return rawArray.map((path: any) =>
+    return rawArray.map((path) =>
       String(path)
         .replace(/^\/?static\//, "")
         .replace(/^\/+/, ""),

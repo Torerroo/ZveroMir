@@ -8,7 +8,7 @@ export interface AppError extends Error {
 }
 
 export function errorHandler(
-  err: any,
+  err: unknown,
   req: Request,
   res: Response,
   next: NextFunction
@@ -31,28 +31,40 @@ export function errorHandler(
     });
   }
 
-  if (err.message && err.message.includes("Разрешены только")) {
+  const appErr = err as Partial<AppError> & { message?: unknown };
+
+  if (typeof appErr.message === "string" && appErr.message.includes("Разрешены только")) {
     return res.status(400).json({
       error: {
-        message: err.message,
+        message: appErr.message,
         code: "INVALID_FILE_FORMAT",
-        details: [{ path: ["images"], message: err.message }],
+        details: [{ path: ["images"], message: appErr.message }],
       },
     });
   }
 
   const status =
-    err.statusCode && err.statusCode >= 400 && err.statusCode < 600
-      ? err.statusCode
+    typeof appErr.statusCode === "number" &&
+    appErr.statusCode >= 400 &&
+    appErr.statusCode < 600
+      ? appErr.statusCode
       : 500;
 
-  const code = err.code || (status === 500 ? "INTERNAL_SERVER_ERROR" : "ERROR");
+  const code =
+    appErr.code || (status === 500 ? "INTERNAL_SERVER_ERROR" : "ERROR");
+
+  const message =
+    status === 500
+      ? "Внутренняя ошибка сервера"
+      : typeof appErr.message === "string"
+        ? appErr.message
+        : "Ошибка";
 
   res.status(status).json({
     error: {
-      message: status === 500 ? "Внутренняя ошибка сервера" : err.message,
+      message,
       code,
-      ...(err.details ? { details: err.details } : {}),
+      ...(appErr.details ? { details: appErr.details } : {}),
     },
   });
 }

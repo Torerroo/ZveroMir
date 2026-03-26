@@ -13,9 +13,9 @@ describe("AuthService", () => {
   const mockUserFromDb = {
     id: 1,
     email: "test@example.com",
-    full_name: "Test User",
-    created_at: mockDate,
-    password_hash: "hashed_password_123",
+    fullName: "Test User",
+    createdAt: new Date(mockDate),
+    passwordHash: "hashed_password_123",
   };
 
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe("AuthService", () => {
       const result = await authService.login(loginData);
 
       expect(result.token).toBe("fake_token");
-      expect(result.user.fullName).toBe(mockUserFromDb.full_name);
+      expect(result.user.fullName).toBe(mockUserFromDb.fullName);
     });
 
     test("Ошибка: пользователь не найден", async () => {

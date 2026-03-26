@@ -38,27 +38,26 @@ export interface AnimalsResponse {
   total: number;
 }
 
-export interface AnimalRow {
-  id: number;
+export type AnimalCreateData = {
   name: string;
   breed: string | null;
   age: number | null;
-  gender: string;
-  size: string;
-  status: string;
+  gender: Gender;
+  size: AnimalSize;
+  status: AnimalStatus;
   description: string | null;
-  created_at: string;
-  updated_at: string;
-  category_id: number;
-  species_id: number;
-  category_name: string;
-  species_name: string;
-  deleted_at: string | null;
-}
+  categoryId: number;
+  speciesId: number;
+};
 
-export interface AnimalImageRow {
-  id: number;
-  animal_id: number;
-  file_path: string;
-  is_main: number;
-}
+export type AnimalUpdateData = {
+  name: string;
+  breed: string | null;
+  age: number | null | undefined;
+  gender: Gender;
+  size: AnimalSize;
+  status: AnimalStatus;
+  description: string | null | undefined;
+  categoryId: number;
+  speciesId: number;
+};

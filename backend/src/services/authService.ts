@@ -7,7 +7,7 @@ import { User } from "../types/userType";
 
 class AuthService {
   async login(data: LoginData): Promise<{ user: User; token: string }> {
-    const existing = userRepository.findByEmail(data.email);
+    const existing = await userRepository.findByEmail(data.email);
 
     if (!existing) {
       throw unauthorizedError("Неверный email или пароль");
@@ -15,7 +15,7 @@ class AuthService {
 
     const isValid = await bcrypt.compare(
       data.password,
-      (existing as { password_hash: string }).password_hash
+      existing.passwordHash,
     );
 
     if (!isValid) {
@@ -25,8 +25,8 @@ class AuthService {
     const user = {
       id: existing.id,
       email: existing.email,
-      fullName: existing.full_name,
-      createdAt: existing.created_at,
+      fullName: existing.fullName,
+      createdAt: existing.createdAt.toISOString(),
     };
 
     const token = this.signToken(user.id);
@@ -35,7 +35,7 @@ class AuthService {
   }
 
   async register(data: RegisterData): Promise<{ user: User; token: string }> {
-    const existing = userRepository.findByEmail(data.email);
+    const existing = await userRepository.findByEmail(data.email);
     if (existing) {
       throw unauthorizedError("Пользователь с таким email уже существует");
     }
@@ -43,7 +43,7 @@ class AuthService {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(data.password, salt);
 
-    const user = userRepository.create({
+    const user = await userRepository.create({
       email: data.email,
       passwordHash,
       fullName: data.fullName ?? null,
@@ -54,8 +54,8 @@ class AuthService {
     return { user, token };
   }
 
-  getMe(userId: number): User {
-    const user = userRepository.findById(userId);
+  async getMe(userId: number): Promise<User> {
+    const user = await userRepository.findById(userId);
     if (!user) {
       throw unauthorizedError("Пользователь не найден");
     }
