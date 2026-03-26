@@ -37,5 +37,5 @@ npm install
 - [x] Вспомнить next.js
 - [x] Сделать деплой
 - [x] Написать тесты: backend (Jest + Supertest), frontend (Jest + React Testing Library)
-- [ ] Переписать sqlite на PostgreSQL + Prisma
+- [x] Переписать sqlite на PostgreSQL + Prisma
 - [ ] Поиграться с three.js
