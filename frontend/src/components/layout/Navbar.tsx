@@ -44,6 +44,10 @@ export function Navbar({ transparent = false }: NavbarProps) {
     }
   };
 
+  const userLabel = user?.fullName?.split(" ")[0] || "Профиль";
+  const authButtonLabel = isAuth ? userLabel : "Войти";
+  const buttonLabel = isLoading ? "" : authButtonLabel;
+
   return (
     <>
       <header className={containerStyles}>
@@ -104,11 +108,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                   )}
                 </div>
                 <span className="text-[18px] font-medium text-gray-800 group-hover:text-[#7a4f2a] transition-colors whitespace-nowrap min-w-[50px]">
-                  {isLoading
-                    ? ""
-                    : isAuth
-                      ? user?.fullName?.split(" ")[0] || "Профиль"
-                      : "Войти"}
+                  {buttonLabel}
                 </span>
               </button>
 

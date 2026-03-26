@@ -19,6 +19,16 @@ import type { AnimalWithRelations } from "@/types/animals";
 import { LocationMap } from "@/components/maps/LocationMap";
 import { appToast } from "@/components/ui/AppToast";
 
+function getAgeWord(age: number) {
+  if (age === 1) return "год";
+  if (age < 5) return "года";
+  return "лет";
+}
+
+function formatAge(age: number) {
+  return `${age} ${getAgeWord(age)}`;
+}
+
 export function AnimalDetailClient({
   animal: initialAnimal,
 }: {
@@ -31,9 +41,7 @@ export function AnimalDetailClient({
     setAnimal(updatedAnimal);
   };
 
-  const ageText = animal.age
-    ? `${animal.age} ${animal.age === 1 ? "год" : animal.age < 5 ? "года" : "лет"}`
-    : "Возраст уточняется";
+  const ageText = animal.age ? formatAge(animal.age) : "Возраст уточняется";
 
   const GenderIcon = animal.gender === "Мальчик" ? Mars : Venus;
 

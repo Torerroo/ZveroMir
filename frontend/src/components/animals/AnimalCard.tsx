@@ -9,45 +9,44 @@ type Props = {
 
 const staticBase = process.env.NEXT_PUBLIC_STATIC_URL;
 
+const speciesToEmoji: Record<string, string> = {
+  Кот: "😺",
+  Собака: "🐶",
+  Попугай: "🦜",
+  Черепаха: "🐢",
+  Игуана: "🦎",
+  Лемур: "🐒",
+  Змея: "🐍",
+};
+
+const sizeToClasses: Record<string, string> = {
+  Маленький: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  Средний: "bg-amber-100 text-amber-700 border-amber-200",
+  Большой: "bg-orange-100 text-orange-700 border-orange-200",
+};
+
+function getAgeWord(age: number) {
+  if (age === 1) return "год";
+  if (age < 5) return "года";
+  return "лет";
+}
+
 export function AnimalCard({ animal }: Props) {
   const mainImageUrl =
     animal.images.find((img) => img.isMain)?.url || animal.images[0]?.url;
 
-  const speciesIcon =
-    animal.species === "Кот"
-      ? "😺"
-      : animal.species === "Собака"
-        ? "🐶"
-        : animal.species === "Попугай"
-          ? "🦜"
-          : animal.species === "Черепаха"
-            ? "🐢"
-            : animal.species === "Игуана"
-              ? "🦎"
-              : animal.species === "Лемур"
-                ? "🐒"
-                : animal.species === "Змея"
-                  ? "🐍"
-                  : "🐾";
+  const speciesIcon = speciesToEmoji[animal.species] ?? "🐾";
 
+  const age = animal.age;
   const ageText =
-    animal.age !== null && animal.age !== undefined
-      ? `${animal.age} ${
-          animal.age === 1 ? "год" : animal.age < 5 ? "года" : "лет"
-        }`
-      : "возраст неизвестен";
+    age !== null && age !== undefined ? `${age} ${getAgeWord(age)}` : "возраст неизвестен";
 
   const genderColor =
     animal.gender === "Мальчик"
       ? "bg-blue-100 text-blue-700 border-blue-200"
       : "bg-pink-100 text-pink-700 border-pink-200";
 
-  const sizeColor =
-    animal.size === "Маленький"
-      ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-      : animal.size === "Средний"
-        ? "bg-amber-100 text-amber-700 border-amber-200"
-        : "bg-orange-100 text-orange-700 border-orange-200";
+  const sizeColor = sizeToClasses[animal.size] ?? sizeToClasses["Большой"];
 
   return (
     <Link
