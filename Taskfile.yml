@@ -54,17 +54,19 @@ tasks:
     cmds:
       - cd backend && npm run build
       - powershell -Command "if (Test-Path backend.zip) { Remove-Item backend.zip }"
-      - powershell -Command "Compress-Archive -Path ./backend/dist, ./backend/sql, ./backend/package.json, ./backend/package-lock.json -DestinationPath backend.zip -Force"
+      - powershell -Command "Compress-Archive -Path ./backend/dist, ./backend/prisma, ./backend/prisma.config.ts, ./backend/package.json, ./backend/package-lock.json -DestinationPath backend.zip -Force"
       - scp backend.zip {{.USER}}@{{.HOST}}:{{.PATH}}/
       - |
         ssh {{.USER}}@{{.HOST}} "
           export NVM_DIR=\"\$HOME/.nvm\"
           [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"
           mkdir -p {{.PATH}}/backend && cd {{.PATH}}/backend
-          find . -maxdepth 1 ! -name '.env' ! -name 'zveromir.db' ! -name 'uploads' ! -name 'sql' ! -name 'node_modules' ! -name '.' -exec rm -rf {} +
+          find . -maxdepth 1 ! -name '.env' ! -name 'uploads' ! -name 'node_modules' ! -name '.' -exec rm -rf {} +
           unzip -qo ../backend.zip -d .
           rm ../backend.zip
           npm ci --production
+          npx prisma generate
+          npx prisma migrate deploy
           pm2 delete zveromir-api || true
           pm2 start dist/index.js --name 'zveromir-api'
           pm2 save

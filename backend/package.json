@@ -9,6 +9,7 @@
     "test": "jest",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:gen": "prisma generate",
     "db:seed": "prisma db execute --file ./prisma/seeds/dev_seed.sql"
   },
@@ -27,6 +28,7 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "pg": "^8.20.0",
+    "prisma": "^7.5.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -44,7 +46,6 @@
     "jest": "^30.3.0",
     "nodemon": "^3.1.11",
     "prettier": "^3.8.1",
-    "prisma": "^7.5.0",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
