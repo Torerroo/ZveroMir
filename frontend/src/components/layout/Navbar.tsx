@@ -1,22 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { User as UserIcon, Menu, X, LogOut, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/auth/useAuthStore";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AuthModal } from "../modals/AuthModal/AuthModal";
 
 interface NavbarProps {
   transparent?: boolean;
 }
 
+const PENDING_SECTION_KEY = "pending-home-section";
+
 export function Navbar({ transparent = false }: NavbarProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuth, user, logout, isLoading } = useAuthStore();
   const pathname = usePathname();
+  const router = useRouter();
 
   const containerStyles = transparent
     ? "absolute top-6 left-0 right-0 z-50 flex justify-center px-8"
@@ -33,15 +36,45 @@ export function Navbar({ transparent = false }: NavbarProps) {
     { name: "Контакты", id: "contacts-section" },
   ];
 
+  const scrollToSection = useCallback((id: string) => {
+    if (id === "top") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const element = document.getElementById(id);
+    if (!element) return;
+
+    const elementTop = element.getBoundingClientRect().top + window.scrollY;
+    const scrollTop = Math.max(elementTop, 0);
+    window.scrollTo({ top: scrollTop, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const pendingSection = window.sessionStorage.getItem(PENDING_SECTION_KEY);
+    if (!pendingSection) return;
+
+    window.sessionStorage.removeItem(PENDING_SECTION_KEY);
+
+    const timeoutId = window.setTimeout(() => {
+      scrollToSection(pendingSection);
+    }, 80);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [pathname, scrollToSection]);
+
   const handleNavClick = (id: string) => {
     setIsMobileMenuOpen(false);
+
     if (pathname === "/") {
-      if (id === "top") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-      }
+      scrollToSection(id);
+      return;
     }
+
+    window.sessionStorage.setItem(PENDING_SECTION_KEY, id);
+    router.push("/");
   };
 
   const userLabel = user?.fullName?.split(" ")[0] || "Профиль";
@@ -55,7 +88,10 @@ export function Navbar({ transparent = false }: NavbarProps) {
           <Link
             href="/"
             className="shrink-0 w-[180px] cursor-pointer"
-            onClick={() => handleNavClick("top")}
+            onClick={(event) => {
+              event.preventDefault();
+              handleNavClick("top");
+            }}
           >
             <img
               src="/logo.svg"
@@ -66,25 +102,15 @@ export function Navbar({ transparent = false }: NavbarProps) {
 
           <div className="flex items-center gap-4 lg:gap-6">
             <nav className="hidden lg:flex items-center gap-8 text-gray-800 font-medium text-[19px]">
-              {navItems.map((item) =>
-                pathname === "/" ? (
-                  <button
-                    key={item.id}
-                    onClick={() => handleNavClick(item.id)}
-                    className="hover:text-[#7a4f2a] transition-colors cursor-pointer outline-none whitespace-nowrap"
-                  >
-                    {item.name}
-                  </button>
-                ) : (
-                  <Link
-                    key={item.id}
-                    href={`/#${item.id}`}
-                    className="hover:text-[#7a4f2a] transition-colors cursor-pointer outline-none whitespace-nowrap"
-                  >
-                    {item.name}
-                  </Link>
-                ),
-              )}
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className="hover:text-[#7a4f2a] transition-colors cursor-pointer outline-none whitespace-nowrap"
+                >
+                  {item.name}
+                </button>
+              ))}
             </nav>
 
             <div className="flex items-center gap-2">
@@ -140,35 +166,18 @@ export function Navbar({ transparent = false }: NavbarProps) {
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               className="absolute top-[90px] left-4 right-4 bg-white/98 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-[2.5rem] p-8 flex flex-col gap-2 lg:hidden"
             >
-              {navItems.map((item, i) =>
-                pathname === "/" ? (
-                  <motion.button
-                    key={item.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    onClick={() => handleNavClick(item.id)}
-                    className="w-full py-4 text-center text-xl font-bold text-gray-800 hover:text-[#7a4f2a] hover:bg-[#7a4f2a]/5 rounded-2xl transition-all cursor-pointer active:scale-95"
-                  >
-                    {item.name}
-                  </motion.button>
-                ) : (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <Link
-                      href={`/#${item.id}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block w-full py-4 text-center text-xl font-bold text-gray-800 hover:text-[#7a4f2a] hover:bg-[#7a4f2a]/5 rounded-2xl transition-all cursor-pointer active:scale-95"
-                    >
-                      {item.name}
-                    </Link>
-                  </motion.div>
-                ),
-              )}
+              {navItems.map((item, i) => (
+                <motion.button
+                  key={item.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  onClick={() => handleNavClick(item.id)}
+                  className="w-full py-4 text-center text-xl font-bold text-gray-800 hover:text-[#7a4f2a] hover:bg-[#7a4f2a]/5 rounded-2xl transition-all cursor-pointer active:scale-95"
+                >
+                  {item.name}
+                </motion.button>
+              ))}
 
               {!isLoading && isAuth && (
                 <button

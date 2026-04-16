@@ -2,7 +2,7 @@ export function HeroSection() {
   return (
     <section className="h-screen relative overflow-hidden">
       <div className="relative z-10 h-full flex items-center justify-end">
-        <div className="max-w-xl mr-56 bg-white/85 backdrop-blur-sm p-10 rounded-3xl shadow-xl">
+        <div className="max-w-xl mr-56 bg-white/85 backdrop-blur-sm p-10 rounded-3xl shadow-xl ml-4">
           <h1 className="text-5xl font-bold text-[#7a4f2a] uppercase leading-tight">
             Найди своего
             <br />
