@@ -28,7 +28,7 @@ npm install
 ## 🛠 Технологии
 
 - **Бэкенд:** Express.js, Multer
-- **Фронтенд:** Next.js, Tailwind, Three.js
+- **Фронтенд:** Next.js, Tailwind
 - **База данных:** SQLite, PostgreSQL + Prisma
 
 ## 🎯 План развития
@@ -38,4 +38,3 @@ npm install
 - [x] Сделать деплой
 - [x] Написать тесты: backend (Jest + Supertest), frontend (Jest + React Testing Library)
 - [x] Переписать sqlite на PostgreSQL + Prisma
-- [ ] Поиграться с three.js
