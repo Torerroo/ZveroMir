@@ -1,5 +1,4 @@
 import { api } from "@/api";
-import { Navbar } from "@/components/layout/Navbar";
 import Link from "next/link";
 import { SearchX, ArrowLeft } from "lucide-react";
 import { AnimalDetailClient } from "./AnimalDetailClient";
@@ -16,8 +15,6 @@ export default async function AnimalPage({ params }: Props) {
     return (
       <div className="relative min-h-screen bg-[#F5F0E8] overflow-hidden">
         <div className="absolute top-[-5%] left-[-5%] w-[45%] h-[45%] bg-amber-200/15 blur-[120px] rounded-full" />
-
-        <Navbar />
 
         <main className="relative z-10 mx-auto max-w-7xl px-6 flex justify-center pt-[18vh]">
           <div className="max-w-md w-full text-center space-y-8">
@@ -56,7 +53,6 @@ export default async function AnimalPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#F5F0E8]">
-      <Navbar />
       <AnimalDetailClient animal={animal} />
     </div>
   );

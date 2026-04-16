@@ -1,20 +1,6 @@
-import Image from "next/image";
-import { Navbar } from "../layout/Navbar";
-
 export function HeroSection() {
   return (
     <section className="h-screen relative overflow-hidden">
-      <Image
-        src="/hero.png"
-        alt="Background"
-        fill
-        className="object-cover object-bottom-left"
-        priority
-        quality={100}
-      />
-
-      <Navbar transparent />
-
       <div className="relative z-10 h-full flex items-center justify-end">
         <div className="max-w-xl mr-56 bg-white/85 backdrop-blur-sm p-10 rounded-3xl shadow-xl">
           <h1 className="text-5xl font-bold text-[#7a4f2a] uppercase leading-tight">
