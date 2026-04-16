@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimalGallery } from "@/components/animals/AnimalGallery";
 import { AnimalEditModal } from "@/components/modals/AnimalEditModal/AnimalEditModal";
@@ -36,10 +36,26 @@ export function AnimalDetailClient({
 }) {
   const [animal, setAnimal] = useState<AnimalWithRelations>(initialAnimal);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
+  const addressDetailsRef = useRef<HTMLDivElement>(null);
+  const hasAutoScrolledToAddress = useRef(false);
 
   const handleUpdate = (updatedAnimal: AnimalWithRelations) => {
     setAnimal(updatedAnimal);
   };
+
+  useEffect(() => {
+    if (!selectedAddress || hasAutoScrolledToAddress.current) return;
+
+    const timeoutId = window.setTimeout(() => {
+      addressDetailsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      hasAutoScrolledToAddress.current = true;
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [selectedAddress]);
 
   const ageText = animal.age ? formatAge(animal.age) : "Возраст уточняется";
 
@@ -156,6 +172,7 @@ export function AnimalDetailClient({
         <AnimatePresence mode="wait">
           {selectedAddress && (
             <motion.div
+              ref={addressDetailsRef}
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
