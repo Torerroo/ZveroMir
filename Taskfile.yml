@@ -31,6 +31,7 @@ tasks:
   deploy-frontend:
     desc: Прямой деплой фронтенда
     cmds:
+      - cd frontend && npm test
       - cd frontend && npm run build
       - powershell -Command "Compress-Archive -Path ./frontend/.next, ./frontend/package.json, ./frontend/package-lock.json, ./frontend/public, ./frontend/next.config.ts -DestinationPath frontend.zip -Force"
       - scp frontend.zip {{.USER}}@{{.HOST}}:{{.PATH}}/
@@ -52,6 +53,7 @@ tasks:
   deploy-backend:
     desc: Полный деплой бэкенда
     cmds:
+      - cd backend && npm test
       - cd backend && npm run build
       - powershell -Command "if (Test-Path backend.zip) { Remove-Item backend.zip }"
       - powershell -Command "Compress-Archive -Path ./backend/dist, ./backend/prisma, ./backend/prisma.config.ts, ./backend/package.json, ./backend/package-lock.json -DestinationPath backend.zip -Force"
